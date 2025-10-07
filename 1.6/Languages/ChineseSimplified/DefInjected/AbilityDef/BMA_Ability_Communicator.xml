@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+
+  <!-- AbilityDef: BMA_Ability_Communicator -->
+  <BMA_Ability_Communicator.label>通讯器</BMA_Ability_Communicator.label>
+  <BMA_Ability_Communicator.description>尝试与天空之城建立联络。</BMA_Ability_Communicator.description>
+
+</LanguageData>

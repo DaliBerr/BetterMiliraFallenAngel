@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+
+  <!-- QuestScriptDef: BFA_FallenAngel_Accept -->
+  <BFA_FallenAngel_Accept.label>堕天使 — 接纳</BFA_FallenAngel_Accept.label>
+
+  <!-- 覆盖英文的描述规则（如果你的原文件在 RulePacks 中写了英文，这里可替换为中文） -->
+  <BFA_FallenAngel_Accept.questDescriptionRules.rulesStrings.0>questDescription->一名折跃而来的Milira掉到了你的殖民地，受了重伤，正需要你的帮助。她请求你制造一个通讯器与卡利多联系。</BFA_FallenAngel_Accept.questDescriptionRules.rulesStrings.0>
+
+  <!-- 如需也用 DefInjected 覆盖任务名规则，可取消下方注释并按需调整 -->
+  
+  <BFA_FallenAngel_Accept.questNameRules.rulesStrings.0>questName->堕天使 — 接纳</BFA_FallenAngel_Accept.questNameRules.rulesStrings.0>
+  <BFA_FallenAngel_Accept.questNameRules.rulesStrings.1>questName->堕天使 — 欢迎</BFA_FallenAngel_Accept.questNameRules.rulesStrings.1>
+  <BFA_FallenAngel_Accept.questNameRules.rulesStrings.2>questName->堕天使 — 留宿</BFA_FallenAngel_Accept.questNameRules.rulesStrings.2>
+ 
+
+</LanguageData>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<Defs>
+  <QuestScriptDef>
+    <defName>BFA_FallenAngel_Accept</defName>
+    <!-- 这里 label 不直接写中文，交给 DefInjected 做 -->
+    <label>Fallen Angel — Acceptance</label>
+
+    <root Class="QuestNode_Sequence">
+      <nodes>
+
+        <li Class="BetterFallenAngel.QuestNode_Root_FallenAngel_Accept" />
+
+        <li Class="QuestNode_Signal">
+          <inSignal>QuestShuttle</inSignal>
+          <node Class="QuestNode_Delay">
+            <delayTicks>3500</delayTicks>
+            <node Class="QuestNode_Sequence">
+              <nodes>
+                <li Class="QuestNode_SubScript">
+                  <def>Util_TransportShip_Pickup</def>
+                  <parms>
+                    <leaveDelayTicks>60000</leaveDelayTicks>
+                    <leaveImmediatelyWhenSatisfied>true</leaveImmediatelyWhenSatisfied>
+                    <requiredPawns>$fallenAngel</requiredPawns>
+                    <minAge>0</minAge>
+                  </parms>
+                </li>
+
+                <!-- 用 Keyed 键 -->
+                <li Class="QuestNode_Letter">
+                  <label>BFA_FA_Accept_ShuttleArrived_Label</label>
+                  <text>BFA_FA_Accept_ShuttleArrived_Text</text>
+                  <lookTargets>$pickupShipThing</lookTargets>
+                </li>
+
+              </nodes>
+            </node>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>pickupShipThing.Destroyed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label>BFA_FA_Accept_Destroyed_Label</label>
+                <text>BFA_FA_Accept_Destroyed_Text</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>pickupShipThing.SentSatisfied</inSignal>
+          <node Class="BetterFallenAngel.QuestNode_DropPresetRewards">
+            <mapSlateKey>map</mapSlateKey>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>pickupShipThing.SentUnsatisfied</inSignal>
+          <node Class="QuestNode_End">
+            <outcome>Fail</outcome>
+          </node>
+        </li>
+
+      </nodes>
+    </root>
+
+    <!-- 这些 RulePack 字符串用 DefInjected 来翻 -->
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->堕天使 — 接纳</li>
+        <li>questName->堕天使 — 欢迎</li>
+        <li>questName->堕天使 — 留宿</li>
+      </rulesStrings>
+    </questNameRules>
+
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Accept the Fallen Angel's presence and uncover a gentle storyline.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+
+  </QuestScriptDef>
+</Defs>

@@ -1,0 +1,37 @@
+<ModMetaData>
+  <name>BetterMiliraFallenAngel</name>
+  <author>Aquin</author>
+  <description>
+    让Milira堕天使任务更加合理一些。
+
+    - 增加了一个新的通讯器，可以用来联系卡利多。
+    - 增加了一个新的制造配方，可以制造通讯器。
+    - 增加了一条新的任务线，选择是否接纳Milira。
+    - 增加了一个新的好感度事件，Milira派系会因为你的选择而改变对你的态度（可解除永久敌对）。
+
+    如果你喜欢这个Mod，请考虑给它一个好评！这对我非常重要，谢谢！
+
+    如果你发现任何问题或有任何建议，请随时联系我。
+  </description>
+  <packageId>Aquin.BetterMiliraFallenAngel</packageId>
+  <modDependencies>
+    <li>
+      <packageId>brrainz.harmony</packageId>
+      <displayName>Harmony</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+      <downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+    </li>
+    <li>
+      <packageId>ancot.milirarace</packageId>
+      <displayName>Milira</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/3256974620</steamWorkshopUrl>
+    </li>
+  </modDependencies>
+  <loadAfter>
+    <li>brrainz.harmony</li>
+    <li>ancot.milirarace</li>
+  </loadAfter>
+  <supportedVersions>
+    <li>1.6</li>
+  </supportedVersions>
+</ModMetaData>

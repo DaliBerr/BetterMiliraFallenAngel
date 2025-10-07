@@ -1,0 +1,178 @@
+  <!-- 拒绝线：关系恶化，1~2天后可能发生袭击 -->
+  <QuestScriptDef>
+    <defName>BFA_FallenAngel_Reject</defName>
+    <label>Fallen Angel — Rejection</label>
+    <root Class="BetterFallenAngel.QuestNode_Root_FallenAngel_Reject"/>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->堕天使 — 拒绝</li>
+        <li>questName->堕天使 — 排斥</li>
+        <li>questName->堕天使 — 驱逐</li>
+      </rulesStrings>
+    </questNameRules>
+    <!-- <questName>Fallen Angel — Rejection</questName> -->
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Reject the Fallen Angel and brace for consequences.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <!-- <questDescription></questDescription> -->
+    <!-- <workerClass>BetterFallenAngel.QuestNode_Root_FallenAngel_Reject</workerClass> -->
+  </QuestScriptDef>
+
+////////////////////////////////////////////////////////////////////////
+<?xml version="1.0" encoding="UTF-8"?>
+<Defs>
+
+  <QuestScriptDef>
+    <defName>BFA_FallenAngel_Accept</defName>
+    <label>Fallen Angel — Acceptance</label>
+    <root Class = "QuestNode_Sequence">
+      <nodes>
+        <li Class="BetterFallenAngel.QuestNode_Root_FallenAngel_Accept">
+        </li>
+
+        <li Class="QuestNode_GetMapOf">
+          <mapOf>$fallenAngel</mapOf>
+        </li>
+        <li Class="QuestNode_End">
+          <inSignal>map.MapRemoved</inSignal>
+          <outcome>Fail</outcome>
+          <signalListenMode>NotYetAcceptedOnly</signalListenMode>
+        </li>
+
+        <!-- 3) 约1.4小时后穿梭机抵达（3500 ticks ≈ 1.4 小时） -->
+        <li Class="QuestNode_Signal">
+          <inSignal>QuestShuttle</inSignal>
+        <li Class="QuestNode_ShuttleDelay">
+          <delayTicks>3500</delayTicks>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <!-- 生成穿梭机 + 设置装载清单（必须装载 fallenAngel） -->
+              <li Class="QuestNode_SubScript">
+                <def>Util_TransportShip_Pickup</def>
+                <parms>
+                  <leaveDelayTicks>60000</leaveDelayTicks> <!-- 最多等1天 -->
+                  <leaveImmediatelyWhenSatisfied>true</leaveImmediatelyWhenSatisfied>
+                  <requiredPawns>$fallenAngel</requiredPawns>
+                  <minAge>0</minAge>
+                </parms>
+              </li>
+
+              <!-- 抵达提示 -->
+              <li Class="QuestNode_Letter">
+                <label>穿梭机抵达</label>
+                <text>用于运送堕天使的穿梭机已抵达，请将指定对象装载上船。</text>
+                <lookTargets>$pickupShipThing</lookTargets>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </li>
+
+        <!-- 4) 三个信号分支：被毁 / 满意起飞 / 不满意起飞 -->
+        <!-- 被毁：失败 -->
+        <li Class="QuestNode_Signal">
+          <inSignal>pickupShipThing.Destroyed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label>穿梭机被摧毁</label>
+                <text>用于运送的穿梭机被摧毁。任务失败。</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <!-- 满意起飞：给奖励 → 成功（你可换成自定义奖励节点） -->
+        <li Class="QuestNode_Signal">
+          <inSignal>pickupShipThing.SentSatisfied</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Delay">
+                <delayTicks>$(randInt(300,600))</delayTicks>
+              </li>
+              <li Class="QuestNode_GiveRewards">
+                <parms>
+                  <allowGoodwill>false</allowGoodwill>
+                  <allowRoyalFavor>false</allowRoyalFavor>
+                  <thingRewardRequired>true</thingRewardRequired>
+                  <thingRewardItemsOnly>true</thingRewardItemsOnly>
+                </parms>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <!-- 不满意起飞（超时或未装全）：失败 -->
+        <li Class="QuestNode_Signal">
+          <inSignal>pickupShipThing.SentUnsatisfied</inSignal>
+          <node Class="QuestNode_End">
+            <outcome>Fail</outcome>
+          </node>
+        </li>
+
+      </nodes>
+    </root>
+
+
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->堕天使 — 接纳</li>
+        <li>questName->堕天使 — 欢迎</li>
+        <li>questName->堕天使 — 留宿</li>
+      </rulesStrings>
+    </questNameRules>
+
+
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Accept the Fallen Angel's presence and uncover a gentle storyline.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+  </QuestScriptDef>
+
+
+
+</Defs>
+
+
+///////////////////
+
+        <!-- 从 fallenAngel 推导所在地图，并存为 map 供后续使用 -->
+        <li Class="QuestNode_GetMapOf">
+          <mapOf>$fallenAngel</mapOf>
+          <storeAs>map</storeAs>
+        </li>
+
+        <!-- 未接受就把地图卸掉：失败 -->
+        <li Class="QuestNode_End">
+          <inSignal>map.MapRemoved</inSignal>
+          <outcome>Fail</outcome>
+          <signalListenMode>NotYetAcceptedOnly</signalListenMode>
+        </li>
+
+
+
+
+
+
+
+    //////////////////////
+
+            <li Class="QuestNode_Signal">
+          <inSignal>pickupShipThing.SentSatisfied</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+    <Milira_FallenAngel_Action_A>把Milira救回殖民地</Milira_FallenAngel_Action_A>
+    <Milira_FallenAngel_Action_B>让她自生自灭</Milira_FallenAngel_Action_B>
+    <Milira_Communicator>Milira通讯器</Milira_Communicator>
+
+    <label>Milira通讯器</label>
+    <description>尝试和天空之城进行连接。</description>
+
+    <CommunicatorDisconnected>通讯器无法连接到任何频道</CommunicatorDisconnected>
+    <Close>关闭</Close>
+
+    <R_text>通讯接入……</R_text>
+    <R_OptA>我们发现了一名受伤的Milira,是她教我们做的</R_OptA>
+    <R_Cancel>我们打错了</R_Cancel>
+
+    <R_OptA_S_text>你们对她做什么了？！</R_OptA_S_text>
+    <R_OptA_S_OptA>她现在正躺在医疗室里，你们直接跟她聊吧</R_OptA_S_OptA>
+    <R_OptA_S_OptB>如果你们想要她继续活着，就送点东西来吧！不然的话。。。</R_OptA_S_OptB>
+
+
+    <R_OptA_S_OptA_S_text>需要我们来接你吗？</R_OptA_S_OptA_S_text>
+    <R_OptA_S_OptA_S_OptA>我应该不回去了，他们非常友善，和传闻中的地面人不同，我决定暂时和他们待在一起。</R_OptA_S_OptA_S_OptA>
+
+    <R_OptA_S_OptB_S_text>我就知道，你们这些地面人都是一群贪婪的野兽！先把我们的人送回来，自然会给你们答谢</R_OptA_S_OptB_S_text>
+    <R_OptA_S_OptB_S_OptA>那就这样说定了</R_OptA_S_OptB_S_OptA>
+
+    <R_OptA_S_OptA_S_OptA_S_text>需要我们来接你吗？</R_OptA_S_OptA_S_OptA_S_text>
+    <R_OptA_S_OptA_S_OptA_S_OptA>我应该不回去了，他们非常友善，和传闻中的地面人不同，我决定暂时和他们待在一起。</R_OptA_S_OptA_S_OptA_S_OptA>
+
+    <Milira_FallenAngel_Action_Desc>一名奄奄一息的Milira正躺在地上，似乎受了重伤。她微弱的呼吸声在寂静中显得格外明显。我们应该怎么做？</Milira_FallenAngel_Action_Desc>
+    
+    <Milira_FallenAngel_Action_A_Desc>
+        你们把我从死神手中救了回来，我欠你们一个人情。可以再帮我一个忙吗？帮我用通讯器和卡利多联系一下。
+    </Milira_FallenAngel_Action_A_Desc>
+    
+    <BetterFallenAngel>更好的堕天使</BetterFallenAngel>
+    <Milira_FallenAngel_Title>堕天使</Milira_FallenAngel_Title>
+
+    <Milira_FallenAngel_Accept_Desc>
+        她是来自天空之城的堕天使，她受了重伤，正需要你的帮助。
+
+        你可以选择让她留下来，和你一起生活；也可以选择把她送回去。
+    </Milira_FallenAngel_Accept_Desc>
+
+    <BFA_FA_Accept_ShuttleArrived_Label>接送飞船抵达</BFA_FA_Accept_ShuttleArrived_Label>
+    <BFA_FA_Accept_ShuttleArrived_Text>
+    用于运送堕天使的穿梭机已抵达，请将指定对象装载上船。
+    </BFA_FA_Accept_ShuttleArrived_Text>
+
+    <BFA_FA_Accept_Destroyed_Label>穿梭机被摧毁</BFA_FA_Accept_Destroyed_Label>
+    <BFA_FA_Accept_Destroyed_Text>
+        用于运送堕天使的穿梭机被摧毁。任务失败。
+    </BFA_FA_Accept_Destroyed_Text>
+    
+    <RewardsDelivered>回报已送达</RewardsDelivered>
+
+    <Milira_FallenAngel_Leave_Title>堕天使离开</Milira_FallenAngel_Leave_Title>
+    <Milira_FallenAngel_Leave_Desc>
+        由于你没有联系上卡利多，[PAWN]决定自行离开。
+        她会在离开前和你道别。
+    </Milira_FallenAngel_Leave_Desc>
+
+    <Back>返回上一级</Back>
+</LanguageData>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+
+  <!-- ThingDef: BMA_Communicator -->
+  <BMA_Communicator.label>通讯器</BMA_Communicator.label>
+  <BMA_Communicator.description>来自天空之城的通讯器。</BMA_Communicator.description>
+
+</LanguageData>

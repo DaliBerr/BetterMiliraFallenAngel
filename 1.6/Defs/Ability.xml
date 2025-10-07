@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Defs>
+
+  <AbilityDef>
+    <defName>BMA_Ability_Communicator</defName>
+    <label>Communicator</label>
+    <description>Attempt to connect with the Sky City.</description>
+
+    <targetRequired>false</targetRequired>
+    <hostile>false</hostile>
+    <cooldownTicksRange>600</cooldownTicksRange>  
+
+    <verbProperties>
+      <verbClass>Verb_CastAbility</verbClass>
+      <range>1.1</range> 
+      <drawAimPie>False</drawAimPie>
+      <warmupTime>3.0</warmupTime>
+
+      <targetParams>
+        <canTargetAnimals>false</canTargetAnimals>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetBuildings>false</canTargetBuildings>
+        <canTargetMechs>false</canTargetMechs>
+        <onlyTargetColonists>false</onlyTargetColonists>
+        <canTargetSubhumans>false</canTargetSubhumans>
+      </targetParams>
+    </verbProperties>
+    <!-- <targetRequired>false</targetRequired>
+    <canCastWithFists>true</canCastWithFists>  -->
+
+
+    <iconPath>BMA_Communicator</iconPath>
+
+    <comps>
+      <li Class="BetterFallenAngel.CompProperties_AbilityEffect_Communicator">
+     </li>
+    </comps>
+  </AbilityDef>
+
+</Defs>

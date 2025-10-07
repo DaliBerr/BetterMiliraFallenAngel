@@ -1,0 +1,44 @@
+<Defs>
+  <HediffDef>
+    <defName>Milira_FallenAngelAura</defName>
+    <hediffClass>BetterFallenAngel.Hediff_Hidden</hediffClass>
+    <label>aura</label>
+    <description>Fallen Angel Aura</description>
+    <isBad>false</isBad>
+    <tendable>false</tendable>
+    <!-- <alwaysShowSeverity>false</alwaysShowSeverity> -->
+    <scenarioCanAdd>true</scenarioCanAdd>
+    <comps>
+      <li Class="BetterFallenAngel.HediffCompProperties_FriendlyProximityTrigger">
+        <radius>8.0</radius>
+        <tickInterval>60</tickInterval> <!-- 每60tick (~1秒)扫描一次 -->
+        <factionFilter>Player</factionFilter> <!-- 只对玩家阵营有效 -->
+        <oneShot>true</oneShot>               <!-- 命中一次就自毁 -->
+        <cooldownTicks>0</cooldownTicks>      <!-- 若非一次性可设冷却 -->
+        <!-- 可选：命中后要施加到目标的 Hediff/Thought/Signal 等配置 -->
+        <applyHediffDef>Milira_ContactSig</applyHediffDef>
+        <!-- <sendSignalTag>Milira_FallenAngel_AuraTriggered</sendSignalTag>
+        <letterLabelKey>Milira_FallenAngel_Aura_LetterLabel</letterLabelKey>
+        <letterTextKey>Milira_FallenAngel_Aura_LetterText</letterTextKey> -->
+      </li>
+    </comps>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>Milira_ContactSig</defName>
+    <hediffClass>BetterFallenAngel.Hediff_Hidden</hediffClass>
+    <label>contact</label>
+    <isBad>false</isBad>
+    <tendable>false</tendable>
+    <description>Contact Sig</description>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>Milira_FallenAngelMark</defName>
+    <hediffClass>BetterFallenAngel.Hediff_Hidden</hediffClass>
+    <label>fallen angel mark</label>
+    <isBad>false</isBad>
+    <tendable>false</tendable>
+    <description>Fallen Angel Mark</description>
+  </HediffDef>
+</Defs>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<Defs>
+
+  <!-- 继承核心近战武器模板 -->
+  <ThingDef ParentName="BaseMeleeWeapon">
+    <defName>BMA_Communicator</defName>
+    <label>通讯器</label>
+    <description>来自天空之城的通讯器</description>
+
+    <graphicData>
+      <texPath>BMA_Communicator</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1,1)</drawSize>
+    </graphicData>
+
+    <statBases>
+      <MarketValue>180</MarketValue>
+      <Mass>1.8</Mass>
+      <MeleeWeapon_DamageMultiplier>1.0</MeleeWeapon_DamageMultiplier>
+      <MeleeWeapon_CooldownMultiplier>1.0</MeleeWeapon_CooldownMultiplier>
+    </statBases>
+
+    <tools>
+      <li>
+        <label>钝击</label>
+        <capacities>
+          <li>Stab</li>
+        </capacities>
+        <power>5</power>                <!-- 伤害 -->
+        <armorPenetration>0.28</armorPenetration>
+        <cooldownTime>2.1</cooldownTime> <!-- 攻击间隔 -->
+      </li>
+    </tools>
+    <smeltable>false</smeltable>
+    <costList>
+        <Steel>20</Steel>
+        <Gold>10</Gold>
+    </costList>
+
+    
+    <comps>
+      <li Class="BetterFallenAngel.CompProperties_GiveAbilityOnEquip">
+        <abilityDef>BMA_Ability_Communicator</abilityDef>
+      </li>
+    </comps>
+  </ThingDef>
+
+</Defs>
