@@ -29,8 +29,9 @@ namespace BetterFallenAngel
         }
         private const int HostileGoodwill = -100;
         private const int NeutralGoodwill = 0;
-        public static void UnlockGoodWill(bool isUnlocked)
+        private static void UnlockGoodWill(bool isUnlocked)
         {
+
             var def = DefDatabase<FactionDef>.GetNamedSilentFail("Milira_Faction");
             if (def == null)
             {
@@ -45,13 +46,22 @@ namespace BetterFallenAngel
 
             // 参与关系调整的阵营集合（含隐藏）
             var allFactions = Find.FactionManager.AllFactionsListForReading;
-
+            Log.Warning("[BetterFallenAngel] UnlockGoodWill: isUnlocked=" + isUnlocked );
+            // WorldComponent_BFA.Instance.isUnlocked = isUnlocked;
             if (isUnlocked)
             {
-                // 解锁：移除永久敌对约束
-                def.permanentEnemyToEveryoneExcept = new List<FactionDef> { Faction.OfPlayer.def };
+                WorldComponent_BFA.Instance.isUnlocked = ExtendBool.True;
                 def.permanentEnemy = false; // 保险起见
-                def.permanentEnemyToEveryoneExceptPlayer = true;
+                // 解锁：移除永久敌对约束
+                if (def.permanentEnemyToEveryoneExcept == null)
+                    def.permanentEnemyToEveryoneExcept = new List<FactionDef>{Faction.OfPlayer.def};
+                else
+                {
+                    def.permanentEnemyToEveryoneExcept.Add(Faction.OfPlayer.def); // 仅移除玩家阵营，保留其他白名单
+                }
+                // def.permanentEnemyToEveryoneExcept = new List<FactionDef> { Faction.OfPlayer.def };
+                
+                // def.permanentEnemyToEveryoneExceptPlayer = true;
                 foreach (var f in miliraFactions)
                 {
                     foreach (var other in allFactions)
@@ -62,13 +72,16 @@ namespace BetterFallenAngel
             }
             else
             {
+                WorldComponent_BFA.Instance.isUnlocked = ExtendBool.False;
+                def.permanentEnemy = true;
                 if (def.permanentEnemyToEveryoneExcept == null)
                     def.permanentEnemyToEveryoneExcept = new List<FactionDef>();
 
                 if (def.permanentEnemyToEveryoneExcept.Contains(Faction.OfPlayer.def))
                     def.permanentEnemyToEveryoneExcept.Remove(Faction.OfPlayer.def); // 仅追加，不覆盖原有白名单
-                def.permanentEnemy = true;
-                def.permanentEnemyToEveryoneExceptPlayer = false;
+                
+                // def.permanentEnemyToEveryoneExceptPlayer = false;
+
 
                 foreach (var f in miliraFactions)
                 {
@@ -78,18 +91,11 @@ namespace BetterFallenAngel
 
                         if (other == Faction.OfPlayer)
                         {
-                            f.SetRelationDirect(other, FactionRelationKind.Hostile, false, null, null);
-
+                            // f.SetRelationDirect(other, FactionRelationKind.Hostile, false, null, null);
+                            // f.SetRelation(FactionRelation.)
+                            f.TryAffectGoodwillWith(other, -100, false, false, null, null);
                         }
-                        // var kind = (other == Faction.OfPlayer)
-                        //     ? FactionRelationKind.Neutral   // 对玩家例外
-                        //     : FactionRelationKind.Hostile;  // 其他全部敌对
 
-                        // f.SetRelationDirect(other, kind, false, null, null);
-
-                        // var rel = f.RelationWith(other, allowNull: false);
-                        // if (rel != null)
-                        //     rel.baseGoodwill = (other == Faction.OfPlayer) ? NeutralGoodwill : HostileGoodwill;
                     }
                 }
             }
@@ -97,16 +103,39 @@ namespace BetterFallenAngel
             // 如需，最后你可以自己发一条合并后的简短 Letter，避免 spam（可选）
             // Messages.Message("Milira goodwill has been " + (isUnlocked ? "unlocked" : "locked") + ".", MessageTypeDefOf.PositiveEvent, false);
         }
+        
+        public static void UnlockGoodWill(ExtendBool flag)
+        {
+            if (flag == ExtendBool.True)
+            {
+                UnlockGoodWill(true);
+                // WorldComponent_BFA.Instance.isUnlocked = ExtendBool.True;
+            }
+            else if (flag == ExtendBool.False)
+            {
+                UnlockGoodWill(false);
+                // WorldComponent_BFA.Instance.isUnlocked = ExtendBool.False;
+            }
+            else if (flag == ExtendBool.Unset)
+            {
+                if (WorldComponent_BFA.Instance.QuestActive || WorldComponent_BFA.Instance.suppressFADialog)
+                {
+                    CoreUtilities.UnlockGoodWill(true);
+                    Log.Message("[BetterFallenAngel] Goodwill unlocked on load due to active quest or suppressed dialog.");
+                }
+                else
+                {
+                    UnlockGoodWill(false);
+                }
+            }
+        }
         public static void TryStartRejectQuest()
         {
             var def = DefDatabase<QuestScriptDef>.GetNamedSilentFail("Milira_FallenAngel_ToChurch");
             if (def == null) return;
 
-            // ——— 可选：如果你已经拿到了“唯一单位”那个pawn，直接塞进slate，避免脚本里再去找 ———
             Slate slate = new Slate();
-            // 注意变量名在脚本里是 storeAs="fallenAngle"（少了个“g”），要原样对应！
-            // 如果你手里有 Pawn fallenAngelPawn:
-            // slate.Set("fallenAngle", fallenAngelPawn);
+
 
             // 生成并“上架”为可接受任务
             Quest quest = QuestUtility.GenerateQuestAndMakeAvailable(def, slate);
@@ -234,8 +263,10 @@ namespace BetterFallenAngel
                 {
                     action = () =>
                     {
+                        WorldComponent_BFA.Instance.suppressFADialog = true;
                         CoreUtilities.SendQuestSignals(WorldComponent_BFA.Instance.Quest, "QuestShuttle");
                         CoreUtilities.SendQuestSignals(WorldComponent_BFA.Instance.Quest, "FA_Accept_LeaveAfter");
+
                         // SendQuestSignalBare("QuestShuttle");
                         // CoreUtilities.UnlockGoodWill(false);
                         // TrySendSignal(Props.requestAidSignal, caster, faction, "RequestAid");
@@ -417,6 +448,8 @@ namespace BetterFallenAngel
                 inSignalToggle = "DebugSignal_Toggle_" + Rand.Int;
             }
         }
+
+
     }
 
 }

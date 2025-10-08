@@ -38,6 +38,7 @@ namespace BetterFallenAngel
     //         quest.AddPart(startLetter);
     //         var rel = new QuestPart_FactionGoodwillChange
     //         {
+    
     //             inSignal = startSignal,
     //             faction = fallenAngel.Faction,
     //             change = -100,
@@ -136,7 +137,7 @@ namespace BetterFallenAngel
                 null
             );
 
-            CoreUtilities.UnlockGoodWill(true);
+            CoreUtilities.UnlockGoodWill(ExtendBool.True);
 
             var rel = new QuestPart_FactionGoodwillChange
             {
@@ -161,7 +162,7 @@ namespace BetterFallenAngel
             var delay = new QuestPart_Delay
             {
                 inSignalEnable = startSignal,
-                
+
                 delayTicks = leaveAfterTicks,
             };
             delay.outSignalsCompleted.Add(leaveSignal);
@@ -172,14 +173,14 @@ namespace BetterFallenAngel
             var leave = new CoreUtilities.QuestPart_Leave_Gated
             {
                 inSignal = leaveSignal,
-                
+
                 inSignalEnable = startSignal,
                 inSignalDisable = leaveAfterSignal,
 
                 pawns = new List<Pawn> { fallenAngel },
                 sendStandardLetter = true,
             };
-            
+
             var leaveLetter = new QuestPart_Letter
             {
                 inSignal = leaveLetterSignal,

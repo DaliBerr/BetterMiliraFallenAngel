@@ -14,6 +14,9 @@ namespace BetterFallenAngel
         public bool QuestActive => Quest != null && Quest.State == QuestState.Ongoing;
 
         public bool suppressFADialog = false;
+        // public bool isUnlocked = false;
+
+        public ExtendBool isUnlocked = ExtendBool.Unset;
         private Quest _quest;
 
         public int questId = -1;
@@ -29,6 +32,8 @@ namespace BetterFallenAngel
             // Scribe_References.Look(ref quest, "quest");
             Scribe_Values.Look(ref questId, "questId", -1, true);
             Scribe_Values.Look(ref suppressFADialog, "BFA_suppressFADialog", false, true);
+            // Scribe_Values.Look(ref isUnlocked, "BFA_isUnlocked", false, true);
+            Scribe_Values.Look(ref isUnlocked, "BFA_isUnlocked", ExtendBool.Unset, true);
         }
         public Quest Quest
         {
@@ -61,5 +66,14 @@ namespace BetterFallenAngel
             this.Quest = quest;
             // Log.Message($"[BFA] Registered quest #{quest?.id}, signal='{uniqueSignal}'");
         }
+
+
+
+    }
+    public enum ExtendBool
+    {
+        True,
+        False,
+        Unset
     }
 }

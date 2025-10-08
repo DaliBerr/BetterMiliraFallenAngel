@@ -21,7 +21,29 @@ namespace BetterFallenAngel
                         __result.health.AddHediff(h);
                     }
                 }
+                CoreUtilities.UnlockGoodWill(ExtendBool.False);
             }
         } 
+
+        [HarmonyPatch(typeof(Game), nameof(Game.LoadGame))]
+        public static class Patch_Game_LoadGame
+        {
+            [HarmonyPostfix]
+            public static void Postfix()
+            {
+
+                if (WorldComponent_BFA.Instance != null)
+                {
+                    CoreUtilities.UnlockGoodWill(WorldComponent_BFA.Instance.isUnlocked);
+                    // if (WorldComponent_BFA.Instance.isUnlocked)
+                    // if (WorldComponent_BFA.Instance.QuestActive || WorldComponent_BFA.Instance.suppressFADialog)
+                    // {
+                    //     CoreUtilities.UnlockGoodWill(true);
+                    //     Log.Message("[BetterFallenAngel] Goodwill unlocked on load due to active quest or suppressed dialog.");
+                    // }
+
+                }
+            }
+        }
     }
 }
