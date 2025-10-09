@@ -1,6 +1,7 @@
 using Verse;
 using HarmonyLib;
 using Milira;
+using RimWorld;
 namespace BetterFallenAngel
 {
     public static class Patches
@@ -23,7 +24,7 @@ namespace BetterFallenAngel
                 }
                 CoreUtilities.UnlockGoodWill(ExtendBool.False);
             }
-        } 
+        }
 
         [HarmonyPatch(typeof(Game), nameof(Game.LoadGame))]
         public static class Patch_Game_LoadGame
@@ -31,7 +32,18 @@ namespace BetterFallenAngel
             [HarmonyPostfix]
             public static void Postfix()
             {
+                // var miliraPlayerFactionDef = DefDatabase<FactionDef>.GetNamedSilentFail("Milira_PlayerFaction");
+                // var kiiroPlayerFactionDef = DefDatabase<FactionDef>.GetNamedSilentFail("Kiiro_PlayerFaction");
+                // var kiiroFaction = DefDatabase<FactionDef>.GetNamedSilentFail("Kiiro_PlayerFaction");
 
+                // if (Find.FactionManager.OfPlayer.def == miliraPlayerFactionDef || Find.FactionManager.OfPlayer.def == kiiroPlayerFactionDef)
+                // {
+                //     if (WorldComponent_BFA.Instance != null)
+                //     {
+                //         WorldComponent_BFA.Instance.isUnlocked = ExtendBool.True;
+                //         CoreUtilities.UnlockGoodWill(WorldComponent_BFA.Instance.isUnlocked);
+                //     }
+                // }
                 if (WorldComponent_BFA.Instance != null)
                 {
                     CoreUtilities.UnlockGoodWill(WorldComponent_BFA.Instance.isUnlocked);

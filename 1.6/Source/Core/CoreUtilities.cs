@@ -27,8 +27,14 @@ namespace BetterFallenAngel
                 null);
             Find.WindowStack.Add(dialog);
         }
-        private const int HostileGoodwill = -100;
-        private const int NeutralGoodwill = 0;
+
+        static List<FactionDef> alwaysFriendlyFactionDef = new List<FactionDef>
+        {
+            DefDatabase<FactionDef>.GetNamedSilentFail("Kiiro_Faction"),
+            DefDatabase<FactionDef>.GetNamedSilentFail("Milira_PlayerFaction"),
+            DefDatabase<FactionDef>.GetNamedSilentFail("Kiiro_PlayerFaction"),
+        };
+
         private static void UnlockGoodWill(bool isUnlocked)
         {
 
@@ -46,15 +52,16 @@ namespace BetterFallenAngel
 
             // 参与关系调整的阵营集合（含隐藏）
             var allFactions = Find.FactionManager.AllFactionsListForReading;
-            Log.Warning("[BetterFallenAngel] UnlockGoodWill: isUnlocked=" + isUnlocked );
+            Log.Warning("[BetterFallenAngel] UnlockGoodWill: isUnlocked=" + isUnlocked);
             // WorldComponent_BFA.Instance.isUnlocked = isUnlocked;
+
             if (isUnlocked)
             {
                 WorldComponent_BFA.Instance.isUnlocked = ExtendBool.True;
-                def.permanentEnemy = false; 
-                
+                def.permanentEnemy = false;
+
                 if (def.permanentEnemyToEveryoneExcept == null)
-                    def.permanentEnemyToEveryoneExcept = new List<FactionDef>{Faction.OfPlayer.def};
+                    def.permanentEnemyToEveryoneExcept = new List<FactionDef> { Faction.OfPlayer.def };
                 else
                 {
                     def.permanentEnemyToEveryoneExcept.Add(Faction.OfPlayer.def); // 仅移除玩家阵营，保留其他白名单
@@ -77,7 +84,7 @@ namespace BetterFallenAngel
 
                 if (def.permanentEnemyToEveryoneExcept.Contains(Faction.OfPlayer.def))
                     def.permanentEnemyToEveryoneExcept.Remove(Faction.OfPlayer.def); // 仅追加，不覆盖原有白名单
-                
+
 
 
 
@@ -97,7 +104,17 @@ namespace BetterFallenAngel
                     }
                 }
             }
+            if(def.permanentEnemyToEveryoneExcept == null)
+                def.permanentEnemyToEveryoneExcept = new List<FactionDef>();
+                
+            def.permanentEnemyToEveryoneExcept.AddRange(alwaysFriendlyFactionDef);
 
+            if (alwaysFriendlyFactionDef.Any(f => f != null && f == Find.FactionManager.OfPlayer.def))
+            {
+                WorldComponent_BFA.Instance.isUnlocked = ExtendBool.True;
+                def.permanentEnemyToEveryoneExcept?.Add(Faction.OfPlayer.def);
+                
+            }
             // Messages.Message("Milira goodwill has been " + (isUnlocked ? "unlocked" : "locked") + ".", MessageTypeDefOf.PositiveEvent, false);
         }
         
