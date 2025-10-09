@@ -39,7 +39,7 @@ namespace BetterFallenAngel
                 return;
             }
 
-            // 目标派系实例（可能>1个，兼容多阵营同Def的情况）
+
             var miliraFactions = Find.FactionManager.AllFactionsListForReading
                 .Where(f => f.def == def)
                 .ToList();
@@ -51,17 +51,15 @@ namespace BetterFallenAngel
             if (isUnlocked)
             {
                 WorldComponent_BFA.Instance.isUnlocked = ExtendBool.True;
-                def.permanentEnemy = false; // 保险起见
-                // 解锁：移除永久敌对约束
+                def.permanentEnemy = false; 
+                
                 if (def.permanentEnemyToEveryoneExcept == null)
                     def.permanentEnemyToEveryoneExcept = new List<FactionDef>{Faction.OfPlayer.def};
                 else
                 {
                     def.permanentEnemyToEveryoneExcept.Add(Faction.OfPlayer.def); // 仅移除玩家阵营，保留其他白名单
                 }
-                // def.permanentEnemyToEveryoneExcept = new List<FactionDef> { Faction.OfPlayer.def };
-                
-                // def.permanentEnemyToEveryoneExceptPlayer = true;
+
                 foreach (var f in miliraFactions)
                 {
                     foreach (var other in allFactions)
@@ -80,7 +78,7 @@ namespace BetterFallenAngel
                 if (def.permanentEnemyToEveryoneExcept.Contains(Faction.OfPlayer.def))
                     def.permanentEnemyToEveryoneExcept.Remove(Faction.OfPlayer.def); // 仅追加，不覆盖原有白名单
                 
-                // def.permanentEnemyToEveryoneExceptPlayer = false;
+
 
 
                 foreach (var f in miliraFactions)
@@ -100,7 +98,6 @@ namespace BetterFallenAngel
                 }
             }
 
-            // 如需，最后你可以自己发一条合并后的简短 Letter，避免 spam（可选）
             // Messages.Message("Milira goodwill has been " + (isUnlocked ? "unlocked" : "locked") + ".", MessageTypeDefOf.PositiveEvent, false);
         }
         
@@ -137,10 +134,8 @@ namespace BetterFallenAngel
             Slate slate = new Slate();
 
 
-            // 生成并“上架”为可接受任务
             Quest quest = QuestUtility.GenerateQuestAndMakeAvailable(def, slate);
 
-            // 弹出“任务可用”的信件，玩家可在这里接受
             if (quest != null)
             {
                 QuestUtility.SendLetterQuestAvailable(quest);
@@ -156,13 +151,11 @@ namespace BetterFallenAngel
             {
                 if (string.IsNullOrEmpty(tag)) continue;
 
-                // 1) 带 Quest 作用域前缀（常见监听格式）
                 string namespaced = $"Quest{quest.id}.{tag}";
                 // Log.Warning("this is the signal:" + namespaced);
                 Find.SignalManager.SendSignal(new Signal(namespaced));
                 count++;
 
-                // 2) 裸标签（部分脚本直接监听裸的）
                 Find.SignalManager.SendSignal(new Signal(tag));
                 count++;
             }

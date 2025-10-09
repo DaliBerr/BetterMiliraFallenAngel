@@ -95,16 +95,16 @@ namespace BetterFallenAngel
         {
             quest = QuestGen.quest;
             Slate slate = QuestGen.slate;
-            // WorldComponent_BFA.Instance._quest = quest;
+            
+            
             WorldComponent_BFA.Instance.RegisterQuest(quest, null);
-            int id = quest.id; // 任务ID，确保全局唯一
+            int id = quest.id;
             Pawn fallenAngel = slate.Get<Pawn>("fallenAngel");
             slate.Set("fallenAngel", fallenAngel);
 
-            Pawn subject = slate.Get<Pawn>("subject"); // 可空，仅用于文案
+            Pawn subject = slate.Get<Pawn>("subject"); 
             Map map = slate.Get<Map>("map");
 
-            // 保险：这里通常不会走到（TestRunInt 已经拦了），但留着更稳
             if (fallenAngel == null || map == null)
             {
                 quest.End(QuestEndOutcome.Fail, 0, null, null, QuestPart.SignalListenMode.OngoingOnly, false, false);
@@ -279,14 +279,14 @@ namespace BetterFallenAngel
             {
                 inSignal = $"Quest{quest.id}.pickupShipThing.SentSatisfied", // 何时空投
                 // outSignalResult = QuestGen.GenerateNewSignal("FA_Accept_Reward_Dropped"), // 空投完成
-                mapParent = slate.Get<Map>("map")?.Parent, // 建议从 slate 取
-                dropSpot = IntVec3.Invalid,       // 让它自动选点，或手动指定
-                useTradeDropSpot = true,          // 丢贸易坠落点更规整
-                joinPlayer = false,               // 奖励通常不改阵营
+                mapParent = slate.Get<Map>("map")?.Parent, 
+                dropSpot = IntVec3.Invalid,       
+                useTradeDropSpot = true,          
+                joinPlayer = false,               
                 makePrisoners = false,
-                dropAllInSamePod = true,          // 奖励一舱落地更干净
+                dropAllInSamePod = true,          
                 allowFogged = false,
-                sendStandardLetter = true,        // 要不要弹信件
+                sendStandardLetter = true,       
                 customLetterLabel = "RewardsDelivered".Translate(),
                 faction = Faction.OfPlayer
             };

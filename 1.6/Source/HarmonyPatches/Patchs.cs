@@ -35,13 +35,6 @@ namespace BetterFallenAngel
                 if (WorldComponent_BFA.Instance != null)
                 {
                     CoreUtilities.UnlockGoodWill(WorldComponent_BFA.Instance.isUnlocked);
-                    // if (WorldComponent_BFA.Instance.isUnlocked)
-                    // if (WorldComponent_BFA.Instance.QuestActive || WorldComponent_BFA.Instance.suppressFADialog)
-                    // {
-                    //     CoreUtilities.UnlockGoodWill(true);
-                    //     Log.Message("[BetterFallenAngel] Goodwill unlocked on load due to active quest or suppressed dialog.");
-                    // }
-
                 }
             }
         }
