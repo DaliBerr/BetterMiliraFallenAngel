@@ -2,6 +2,7 @@ using Verse;
 using HarmonyLib;
 using Milira;
 using RimWorld;
+using System.Linq;
 namespace BetterFallenAngel
 {
     public static class Patches
@@ -36,12 +37,14 @@ namespace BetterFallenAngel
                 // var kiiroPlayerFactionDef = DefDatabase<FactionDef>.GetNamedSilentFail("Kiiro_PlayerFaction");
                 // var kiiroFaction = DefDatabase<FactionDef>.GetNamedSilentFail("Kiiro_PlayerFaction");
 
-                // if (Find.FactionManager.OfPlayer.def == miliraPlayerFactionDef || Find.FactionManager.OfPlayer.def == kiiroPlayerFactionDef)
+
+                // if (Find.FactionManager.OfPlayer.def == miliraPlayerFactionDef || Find.FactionManager.OfPlayer.def == kiiroPlayerFactionDef || Find.FactionManager.OfPlayer.def == kiiroFaction)
                 // {
                 //     if (WorldComponent_BFA.Instance != null)
                 //     {
                 //         WorldComponent_BFA.Instance.isUnlocked = ExtendBool.True;
                 //         CoreUtilities.UnlockGoodWill(WorldComponent_BFA.Instance.isUnlocked);
+
                 //     }
                 // }
                 if (WorldComponent_BFA.Instance != null)

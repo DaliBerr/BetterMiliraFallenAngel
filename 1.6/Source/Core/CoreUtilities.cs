@@ -55,6 +55,23 @@ namespace BetterFallenAngel
             Log.Warning("[BetterFallenAngel] UnlockGoodWill: isUnlocked=" + isUnlocked);
             // WorldComponent_BFA.Instance.isUnlocked = isUnlocked;
 
+            if(def.permanentEnemyToEveryoneExcept == null)
+                def.permanentEnemyToEveryoneExcept = new List<FactionDef>();
+                
+            def.permanentEnemyToEveryoneExcept.AddRange(alwaysFriendlyFactionDef);
+
+            if (alwaysFriendlyFactionDef.Any(f => f != null && f == Find.FactionManager.OfPlayer.def))
+            {
+                WorldComponent_BFA.Instance.isUnlocked = ExtendBool.True;
+                def.permanentEnemyToEveryoneExcept?.Add(Faction.OfPlayer.def);
+                // foreach (var f in miliraFactions)
+                // {
+                //     f.TryAffectGoodwillWith(Faction.OfPlayer, 100, false, false, null, null);
+                // }
+                return;
+            }
+
+
             if (isUnlocked)
             {
                 WorldComponent_BFA.Instance.isUnlocked = ExtendBool.True;
@@ -104,17 +121,7 @@ namespace BetterFallenAngel
                     }
                 }
             }
-            if(def.permanentEnemyToEveryoneExcept == null)
-                def.permanentEnemyToEveryoneExcept = new List<FactionDef>();
-                
-            def.permanentEnemyToEveryoneExcept.AddRange(alwaysFriendlyFactionDef);
 
-            if (alwaysFriendlyFactionDef.Any(f => f != null && f == Find.FactionManager.OfPlayer.def))
-            {
-                WorldComponent_BFA.Instance.isUnlocked = ExtendBool.True;
-                def.permanentEnemyToEveryoneExcept?.Add(Faction.OfPlayer.def);
-                
-            }
             // Messages.Message("Milira goodwill has been " + (isUnlocked ? "unlocked" : "locked") + ".", MessageTypeDefOf.PositiveEvent, false);
         }
         
