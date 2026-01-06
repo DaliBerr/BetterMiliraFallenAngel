@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<!-- <?xml version="1.0" encoding="UTF-8"?>
 <Defs>
 <RecipeDef>
     <defName>BMA_Communicator_Recipe</defName>
@@ -48,6 +48,8 @@
     <recipeUsers>
         <li>TableMachining</li>
         <li>FabricationBench</li>
+        <li>ElectricSmithy</li>
+        <li>FueledSmithy</li>
     </recipeUsers>  
     <soundWorking>Recipe_Machining</soundWorking>
     <workSkill>Crafting</workSkill>
@@ -56,4 +58,4 @@
     <uiIconPath>BMA_Communicator</uiIconPath>
 
 </RecipeDef>
-</Defs>
+</Defs> -->

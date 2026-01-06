@@ -2,7 +2,6 @@
 
 <Defs>
 
-  <!-- 继承核心近战武器模板 -->
   <ThingDef ParentName="BaseMeleeWeapon">
     <defName>BMA_Communicator</defName>
     <label>通讯器</label>
@@ -13,6 +12,9 @@
       <graphicClass>Graphic_Single</graphicClass>
       <drawSize>(1,1)</drawSize>
     </graphicData>
+
+    <!-- <recipeMaker Inherit="False"></recipeMaker> -->
+
 
     <statBases>
       <MarketValue>180</MarketValue>
@@ -32,10 +34,27 @@
         <cooldownTime>2.1</cooldownTime> <!-- 攻击间隔 -->
       </li>
     </tools>
+
     <smeltable>false</smeltable>
+    <recipeMaker>
+      <!-- <jobString>正在制造通讯器...</jobString> -->
+      <workAmount>75000</workAmount>
+      <workSkill>Crafting</workSkill>
+      <skillRequirements>
+        <Crafting>4</Crafting>
+        <Intellectual>6</Intellectual>
+      </skillRequirements>
+      <recipeUsers>
+        <li>TableMachining</li>
+        <li>FabricationBench</li>
+        <li>ElectricSmithy</li>
+        <li>FueledSmithy</li>
+    </recipeUsers> 
+  </recipeMaker>
     <costList>
-        <Steel>20</Steel>
-        <Gold>10</Gold>
+        <Steel>60</Steel>
+        <ComponentIndustrial>2</ComponentIndustrial>
+        <Milira_SunLightFuel>20</Milira_SunLightFuel>
     </costList>
 
     

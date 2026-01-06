@@ -114,7 +114,8 @@ namespace BetterFallenAngel
             // int defaultStay = fallenAngel.health.hediffSet.HasHediff(MiliraDefOf.Abasia)
             //     ? (fallenAngel.health.hediffSet.hediffs.Find(x => x.def == MiliraDefOf.Abasia).ageTicks + GenDate.TicksPerDay * 3)
             //     : GenDate.TicksPerDay * 30; // Default to 30 days if the condition is false
-            int leaveAfterTicks = GenDate.TicksPerDay * 45;
+            
+            int leaveAfterTicks = GenDate.TicksPerDay * 35 + Rand.RangeInclusive(0, GenDate.TicksPerDay * 15);
             Log.Warning($"[BFA] Fallen Angel will stay for {leaveAfterTicks / GenDate.TicksPerDay} days ({leaveAfterTicks} ticks)");
             // 关键信号
             string startSignal = QuestGen.GenerateNewSignal("FA_Accept_Start");
