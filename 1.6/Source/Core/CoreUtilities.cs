@@ -84,13 +84,20 @@ namespace BetterFallenAngel
                     def.permanentEnemyToEveryoneExcept.Add(Faction.OfPlayer.def); // 仅移除玩家阵营，保留其他白名单
                 }
 
-                foreach (var f in miliraFactions)
+            foreach (var f in miliraFactions)
+            {
+                // 获取当前与玩家的好感度
+                int currentGoodwill = f.GoodwillWith(Faction.OfPlayer);
+                
+                // 只有当好感度是负数（敌对）时，才重置为 0（中立）
+                // 这样做是为了防止玩家已经是盟友(+75)时，读档被重置回 0
+                if (currentGoodwill < 0)
                 {
-                    foreach (var other in allFactions)
-                    {
-                        if (other == null || other == f) continue;
-                    }
+                    // 补正差值，让好感度正好回到 0
+                    // canSendMessage: false 防止刷屏提示
+                    f.TryAffectGoodwillWith(Faction.OfPlayer, -currentGoodwill, canSendMessage: false);
                 }
+            }
             }
             else
             {
@@ -124,7 +131,35 @@ namespace BetterFallenAngel
 
             // Messages.Message("Milira goodwill has been " + (isUnlocked ? "unlocked" : "locked") + ".", MessageTypeDefOf.PositiveEvent, false);
         }
-        
+        public static void FixLegacyQuest(Quest quest)
+        {
+            // 如果任务不存在，或者不是进行中状态，直接忽略
+            if (quest == null || quest.State != QuestState.Ongoing) return;
+
+            // 构造这个任务原本应该监听的信号字符串
+            // 注意：在 QuestNode 中使用 QuestGen 生成信号时，格式通常是 "Quest" + ID + "." + tag
+            // 例如: Quest123.FA_Accept_LeaveAfter
+            string expectedSignal = $"Quest{quest.id}.FA_Accept_LeaveAfter";
+
+            // 检查任务现有的零件列表 (PartsListForReading)
+            // 看看是否已经存在一个监听这个信号的 QuestEnd 零件
+            bool hasFix = quest.PartsListForReading.OfType<QuestPart_QuestEnd>()
+                            .Any(p => p.inSignal == expectedSignal);
+            
+            // 如果没有修复过（也就是旧存档的情况），则进行注入
+            if (!hasFix)
+            {
+                // 手动创建一个新的结束零件
+                var endPart = new QuestPart_QuestEnd();
+                endPart.inSignal = expectedSignal;       // 设置监听信号
+                endPart.outcome = QuestEndOutcome.Success; // 设置结局为成功
+                
+                // 将零件加入到任务对象中
+                quest.AddPart(endPart);
+
+                Log.Message($"[BetterMiliraFallenAngel] 已修复旧存档任务 (ID: {quest.id})，添加了缺失的结束节点。");
+            }
+        }
         public static void UnlockGoodWill(ExtendBool flag)
         {
             if (flag == ExtendBool.True)
