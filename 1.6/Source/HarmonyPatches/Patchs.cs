@@ -33,25 +33,14 @@ namespace BetterFallenAngel
             [HarmonyPostfix]
             public static void Postfix()
             {
-                // var miliraPlayerFactionDef = DefDatabase<FactionDef>.GetNamedSilentFail("Milira_PlayerFaction");
-                // var kiiroPlayerFactionDef = DefDatabase<FactionDef>.GetNamedSilentFail("Kiiro_PlayerFaction");
-                // var kiiroFaction = DefDatabase<FactionDef>.GetNamedSilentFail("Kiiro_PlayerFaction");
-
-
-                // if (Find.FactionManager.OfPlayer.def == miliraPlayerFactionDef || Find.FactionManager.OfPlayer.def == kiiroPlayerFactionDef || Find.FactionManager.OfPlayer.def == kiiroFaction)
-                // {
-                //     if (WorldComponent_BFA.Instance != null)
-                //     {
-                //         WorldComponent_BFA.Instance.isUnlocked = ExtendBool.True;
-                //         CoreUtilities.UnlockGoodWill(WorldComponent_BFA.Instance.isUnlocked);
-
-                //     }
-                // }
+                // if()
                 if (WorldComponent_BFA.Instance != null)
                 {
+                    CoreUtilities.FixLegacyQuest(WorldComponent_BFA.Instance.Quest);
                     CoreUtilities.UnlockGoodWill(WorldComponent_BFA.Instance.isUnlocked);
                 }
             }
         }
+
     }
 }
