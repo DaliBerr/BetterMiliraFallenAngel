@@ -36,9 +36,8 @@ namespace BetterFallenAngel
                 // if()
                 if (WorldComponent_BFA.Instance != null)
                 {
-                    CoreUtilities.UnlockGoodWill(WorldComponent_BFA.Instance.isUnlocked);
                     CoreUtilities.FixLegacyQuest(WorldComponent_BFA.Instance.Quest);
-                    CoreUtilities.TryAutoCloseLegacyAcceptQuest(WorldComponent_BFA.Instance.Quest);
+                    CoreUtilities.UnlockGoodWill(WorldComponent_BFA.Instance.isUnlocked);
                 }
             }
         }
@@ -55,19 +54,19 @@ namespace BetterFallenAngel
             [HarmonyPostfix]
             public static void Postfix(Quest __instance, QuestEndOutcome outcome)
             {
-                // Log.Message("[BetterMiliraFallenAngel] Quest.End postfix triggered for quest " + __instance?.name + " (ID: " + __instance?.id + ")");
+                Log.Message("[BetterMiliraFallenAngel] Quest.End postfix triggered for quest " + __instance?.name + " (ID: " + __instance?.id + ")");
                 if (__instance == null)
                 {
-                    // Log.Warning("[BetterMiliraFallenAngel] Quest.End postfix found null quest instance.");
+                    Log.Warning("[BetterMiliraFallenAngel] Quest.End postfix found null quest instance.");
                     return;
                 }
                 if (outcome != QuestEndOutcome.Success){
-                    // Log.Message("[BetterMiliraFallenAngel] Quest.End postfix exiting because outcome is not Success: " + outcome);
+                    Log.Message("[BetterMiliraFallenAngel] Quest.End postfix exiting because outcome is not Success: " + outcome);
                     return;
                 }
                 // 只处理你这个 Mod 的那条“当前注册任务”
-                if (WorldComponent_BFA.Instance == null) return;
-                if (WorldComponent_BFA.Instance.Quest != __instance) return;
+                // if (WorldComponent_BFA.Instance == null) return;
+                // if (WorldComponent_BFA.Instance.Quest != __instance) return;
 
                 // 只在“玩家走了通讯器留下选项”后才执行，避免误伤其他成功结束
                 // （你对话里选择留下会把 suppressFADialog 设为 true）:contentReference[oaicite:5]{index=5}
@@ -75,7 +74,7 @@ namespace BetterFallenAngel
 
                 Pawn angel = TryFindMarkedAngelFromQuest(__instance) ?? TryFindMarkedAngelOnAnyPlayerMap();
                 if (angel == null){
-                    // Log.Warning("[BetterMiliraFallenAngel] Could not find Fallen Angel pawn to make permanent colonist.");
+                    Log.Warning("[BetterMiliraFallenAngel] Could not find Fallen Angel pawn to make permanent colonist.");
                     return;
                 }
                 ForcePawnToBeColonist(angel);

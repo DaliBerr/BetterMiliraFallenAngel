@@ -132,31 +132,41 @@ namespace BetterFallenAngel
 
             // Messages.Message("Milira goodwill has been " + (isUnlocked ? "unlocked" : "locked") + ".", MessageTypeDefOf.PositiveEvent, false);
         }
-        /// <summary>
-        /// summary: 兼容旧存档：把“LeaveAfter 直接结束任务”的旧逻辑改写为“LeaveAfter -> StayEnd -> 成功结束”，并注入缺失的部件。
-        /// param: quest 需要修复的任务实例
-        /// return: 无
-        /// </summary>
         public static void FixLegacyQuest(Quest quest)
         {
+            // 如果任务不存在，或者不是进行中状态，直接忽略
             if (quest == null || quest.State != QuestState.Ongoing) return;
 
-            // 旧存档里我们只认 namespaced 信号（和 QuestGen.GenerateNewSignal 的格式一致）
+            // 构造这个任务原本应该监听的信号字符串
+            // 注意：在 QuestNode 中使用 QuestGen 生成信号时，格式通常是 "Quest" + ID + "." + tag
+            // 例如: Quest123.FA_Accept_LeaveAfter
+            string expectedSignal = $"Quest{quest.id}.FA_Accept_LeaveAfter";
             string leaveAfterSignal = $"Quest{quest.id}.FA_Accept_LeaveAfter";
             string stayEndSignal = $"Quest{quest.id}.FA_Accept_StayEnd";
 
-            // 1) 把旧存档里 “QuestEnd 监听 LeaveAfter” 的部件全部改写为监听 StayEnd（避免短路）
-            RewriteLegacyQuestEndSignals(quest, leaveAfterSignal, stayEndSignal);
-
-            // 2) 确保 FinalizePermanentStay 存在（它负责 LeaveAfter -> StayEnd）
             bool hasFinalize = quest.PartsListForReading
                 .OfType<QuestPart_FinalizePermanentStay>()
-                .Any(p => p != null && p.inSignal == leaveAfterSignal);
+                .Any(p => p.inSignal == leaveAfterSignal);
+
+            bool hasEnd = quest.PartsListForReading
+                .OfType<QuestPart_QuestEnd>()
+                .Any(p => p.inSignal == stayEndSignal);
+
+
+            Pawn angel = quest.PartsListForReading
+                .OfType<QuestPart_JoinPlayer>()
+                .SelectMany(p => p.pawns ?? Enumerable.Empty<Pawn>())
+                .FirstOrDefault();
+
+            // 检查任务现有的零件列表 (PartsListForReading)
+            // 看看是否已经存在一个监听这个信号的 QuestEnd 零件
+            bool hasFix = quest.PartsListForReading.OfType<QuestPart_QuestEnd>()
+                            .Any(p => p.inSignal == expectedSignal);
+            
+            // 如果没有修复过（也就是旧存档的情况），则进行注入
 
             if (!hasFinalize)
             {
-                Pawn angel = TryFindAngelFromQuestJoinPlayer(quest);
-
                 var finalize = new QuestPart_FinalizePermanentStay
                 {
                     inSignal = leaveAfterSignal,
@@ -164,16 +174,9 @@ namespace BetterFallenAngel
                     pawn = angel
                 };
                 quest.AddPart(finalize);
-
-                Log.Message($"[BetterFallenAngel] FixLegacyQuest: 注入 FinalizePermanentStay (LeaveAfter -> StayEnd), questId={quest.id}");
             }
 
-            // 3) 确保 QuestEnd 监听 StayEnd 存在
-            bool hasStayEndQuestEnd = quest.PartsListForReading
-                .OfType<QuestPart_QuestEnd>()
-                .Any(p => p != null && p.inSignal == stayEndSignal);
-
-            if (!hasStayEndQuestEnd)
+            if (!hasEnd)
             {
                 var endPart = new QuestPart_QuestEnd
                 {
@@ -181,73 +184,19 @@ namespace BetterFallenAngel
                     outcome = QuestEndOutcome.Success
                 };
                 quest.AddPart(endPart);
-
-                Log.Message($"[BetterFallenAngel] FixLegacyQuest: 注入 QuestEnd(Success) 监听 StayEnd, questId={quest.id}");
-            }
-        }
-
-        /// <summary>
-        /// summary: 将旧存档中“QuestEnd 监听 LeaveAfter”改写为监听 StayEnd，避免新链路被短路。
-        /// param: quest 任务实例
-        /// param: leaveAfterSignal LeaveAfter namespaced 信号
-        /// param: stayEndSignal StayEnd namespaced 信号
-        /// return: 无
-        /// </summary>
-        private static void RewriteLegacyQuestEndSignals(Quest quest, string leaveAfterSignal, string stayEndSignal)
-        {
-            if (quest == null) return;
-
-            // 先拷贝一份，避免边遍历边修改集合带来潜在问题
-            var ends = quest.PartsListForReading
-                .OfType<QuestPart_QuestEnd>()
-                .ToList();
-
-            bool changed = false;
-
-            foreach (var end in ends)
-            {
-                if (end == null) continue;
-
-                // 旧逻辑：QuestEnd 直接监听 LeaveAfter（namespaced）
-                if (end.inSignal == leaveAfterSignal)
-                {
-                    end.inSignal = stayEndSignal;
-                    changed = true;
-                }
-
-                // 如果你历史上曾经用过裸信号，也一起兜底改掉（更稳）
-                if (end.inSignal == "FA_Accept_LeaveAfter")
-                {
-                    end.inSignal = stayEndSignal;
-                    changed = true;
-                }
             }
 
-            if (changed)
+            if (!hasFix)
             {
-                Log.Message($"[BetterFallenAngel] FixLegacyQuest: 已将旧 QuestEnd(LeaveAfter) 改写为 QuestEnd(StayEnd), questId={quest.id}");
-            }
-        }
+                // 手动创建一个新的结束零件
+                var endPart = new QuestPart_QuestEnd();
+                endPart.inSignal = expectedSignal;       // 设置监听信号
+                endPart.outcome = QuestEndOutcome.Success; // 设置结局为成功
+                
+                // 将零件加入到任务对象中
+                quest.AddPart(endPart);
 
-        /// <summary>
-        /// summary: 从 QuestPart_JoinPlayer 中尝试找出被该任务托管加入的 Angel Pawn（旧存档通常能找到）。
-        /// param: quest 任务实例
-        /// return: 找到则返回 Pawn，否则返回 null
-        /// </summary>
-        private static Pawn TryFindAngelFromQuestJoinPlayer(Quest quest)
-        {
-            if (quest == null) return null;
-
-            try
-            {
-                return quest.PartsListForReading
-                    .OfType<QuestPart_JoinPlayer>()
-                    .SelectMany(p => p.pawns ?? Enumerable.Empty<Pawn>())
-                    .FirstOrDefault();
-            }
-            catch
-            {
-                return null;
+                Log.Message($"[BetterMiliraFallenAngel] 已修复旧存档任务 (ID: {quest.id})，添加了缺失的结束节点。");
             }
         }
         public static void UnlockGoodWill(ExtendBool flag)
@@ -590,45 +539,6 @@ namespace BetterFallenAngel
                 inSignalToggle = "DebugSignal_Toggle_" + Rand.Int;
             }
         }
-
-
-
-
-        /// <summary>
-        /// summary: 旧存档自动收口：如果玩家以前已走“留下”分支（suppressFADialog=true），则重放 LeaveAfter/StayEnd 信号，必要时直接 End。
-        /// param: quest 需要处理的任务
-        /// return: 是否触发了自动收口
-        /// </summary>
-        public static bool TryAutoCloseLegacyAcceptQuest(Quest quest)
-        {
-            if (quest == null || quest.State != QuestState.Ongoing) return false;
-            if (WorldComponent_BFA.Instance == null) return false;
-
-            // 玩家点过通讯器“留下”选项时会设置 true :contentReference[oaicite:3]{index=3}
-            if (!WorldComponent_BFA.Instance.suppressFADialog) return false;
-
-            string nsLeaveAfter = $"Quest{quest.id}.FA_Accept_LeaveAfter";
-            string nsStayEnd = $"Quest{quest.id}.FA_Accept_StayEnd";
-
-            Log.Message($"[BetterMiliraFallenAngel] Legacy quest auto-close: replay signal {nsLeaveAfter}");
-            Find.SignalManager.SendSignal(new Signal(nsLeaveAfter));
-
-            if (quest.State == QuestState.Ongoing)
-            {
-                Log.Message($"[BetterMiliraFallenAngel] Legacy quest auto-close: replay signal {nsStayEnd}");
-                Find.SignalManager.SendSignal(new Signal(nsStayEnd));
-            }
-
-            // 兜底：如果由于零件缺失/顺序问题仍未结束，则直接结束
-            if (quest.State == QuestState.Ongoing)
-            {
-                Log.Warning($"[BetterMiliraFallenAngel] Legacy quest auto-close fallback: EndQuest(Success) questId={quest.id}");
-                quest.End(QuestEndOutcome.Success, 0, null, null, QuestPart.SignalListenMode.OngoingOnly, false, false);
-            }
-
-            return true;
-        }
-
         public class QuestPart_FinalizePermanentStay : QuestPart
         {
             public string inSignal;
@@ -658,9 +568,6 @@ namespace BetterFallenAngel
                 }
             }
 
-
-
-
             /// <summary>
             /// summary: 将 Pawn 从所有 QuestPart_JoinPlayer 的 pawns 列表中移除，避免 Quest 结束清理时回滚派系。
             /// param: 无
@@ -688,14 +595,14 @@ namespace BetterFallenAngel
             /// </summary>
             private void TryMakePawnPermanentColonist()
             {
-                // try
-                // {
-                //     pawn.guest?.SetGuestStatus(null, GuestStatus.Guest);
-                // }
-                // catch
-                // {
-                //     // 某些版本签名差异时忽略，不影响主要逻辑
-                // }
+                try
+                {
+                    pawn.guest?.SetGuestStatus(null, GuestStatus.Guest);
+                }
+                catch
+                {
+                    // 某些版本签名差异时忽略，不影响主要逻辑
+                }
                 if (pawn == null)
                 {
                     Log.Warning("[BetterMiliraFallenAngel] QuestPart_FinalizePermanentStay found null pawn.");
