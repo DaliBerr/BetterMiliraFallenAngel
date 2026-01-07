@@ -120,7 +120,7 @@ namespace BetterFallenAngel
                         p?.health?.hediffSet?.HasHediff(FallenMiliraDefOf.Milira_FallenAngelMark) == true);
                     if(found == null)
                     {
-                        Log.Warning("[BetterMiliraFallenAngel] Could not find Fallen Angel on player map: " + map);
+                        // Log.Warning("[BetterMiliraFallenAngel] Could not find Fallen Angel on player map: " + map);
                     }
                     if (found != null) return found;
                 }

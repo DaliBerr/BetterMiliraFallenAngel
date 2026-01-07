@@ -53,7 +53,7 @@ namespace BetterFallenAngel
 
             // 参与关系调整的阵营集合（含隐藏）
             var allFactions = Find.FactionManager.AllFactionsListForReading;
-            Log.Warning("[BetterFallenAngel] UnlockGoodWill: isUnlocked=" + isUnlocked);
+            // Log.Warning("[BetterFallenAngel] UnlockGoodWill: isUnlocked=" + isUnlocked);
             // WorldComponent_BFA.Instance.isUnlocked = isUnlocked;
 
             if(def.permanentEnemyToEveryoneExcept == null)
@@ -165,7 +165,7 @@ namespace BetterFallenAngel
                 };
                 quest.AddPart(finalize);
 
-                Log.Message($"[BetterFallenAngel] FixLegacyQuest: 注入 FinalizePermanentStay (LeaveAfter -> StayEnd), questId={quest.id}");
+                // Log.Message($"[BetterFallenAngel] FixLegacyQuest: 注入 FinalizePermanentStay (LeaveAfter -> StayEnd), questId={quest.id}");
             }
 
             // 3) 确保 QuestEnd 监听 StayEnd 存在
@@ -182,7 +182,7 @@ namespace BetterFallenAngel
                 };
                 quest.AddPart(endPart);
 
-                Log.Message($"[BetterFallenAngel] FixLegacyQuest: 注入 QuestEnd(Success) 监听 StayEnd, questId={quest.id}");
+                // Log.Message($"[BetterFallenAngel] FixLegacyQuest: 注入 QuestEnd(Success) 监听 StayEnd, questId={quest.id}");
             }
         }
 
@@ -267,7 +267,7 @@ namespace BetterFallenAngel
                 if (WorldComponent_BFA.Instance.QuestActive || WorldComponent_BFA.Instance.suppressFADialog)
                 {
                     CoreUtilities.UnlockGoodWill(true);
-                    Log.Message("[BetterFallenAngel] Goodwill unlocked on load due to active quest or suppressed dialog.");
+                    // Log.Message("[BetterFallenAngel] Goodwill unlocked on load due to active quest or suppressed dialog.");
                 }
                 else
                 {
@@ -610,19 +610,19 @@ namespace BetterFallenAngel
             string nsLeaveAfter = $"Quest{quest.id}.FA_Accept_LeaveAfter";
             string nsStayEnd = $"Quest{quest.id}.FA_Accept_StayEnd";
 
-            Log.Message($"[BetterMiliraFallenAngel] Legacy quest auto-close: replay signal {nsLeaveAfter}");
+            // Log.Message($"[BetterMiliraFallenAngel] Legacy quest auto-close: replay signal {nsLeaveAfter}");
             Find.SignalManager.SendSignal(new Signal(nsLeaveAfter));
 
             if (quest.State == QuestState.Ongoing)
             {
-                Log.Message($"[BetterMiliraFallenAngel] Legacy quest auto-close: replay signal {nsStayEnd}");
+                // Log.Message($"[BetterMiliraFallenAngel] Legacy quest auto-close: replay signal {nsStayEnd}");
                 Find.SignalManager.SendSignal(new Signal(nsStayEnd));
             }
 
             // 兜底：如果由于零件缺失/顺序问题仍未结束，则直接结束
             if (quest.State == QuestState.Ongoing)
             {
-                Log.Warning($"[BetterMiliraFallenAngel] Legacy quest auto-close fallback: EndQuest(Success) questId={quest.id}");
+                // Log.Warning($"[BetterMiliraFallenAngel] Legacy quest auto-close fallback: EndQuest(Success) questId={quest.id}");
                 quest.End(QuestEndOutcome.Success, 0, null, null, QuestPart.SignalListenMode.OngoingOnly, false, false);
             }
 
@@ -644,7 +644,7 @@ namespace BetterFallenAngel
             {
                 if (signal.tag != inSignal) 
                 {
-                    Log.Warning("[BetterMiliraFallenAngel] QuestPart_FinalizePermanentStay received unexpected signal: " + signal.tag);
+                    // Log.Warning("[BetterMiliraFallenAngel] QuestPart_FinalizePermanentStay received unexpected signal: " + signal.tag);
                     return;
                 }
 
@@ -674,7 +674,7 @@ namespace BetterFallenAngel
                 {
                     if(jp == null || jp.pawns == null)
                     {
-                        Log.Warning("[BetterMiliraFallenAngel] QuestPart_FinalizePermanentStay found null QuestPart_JoinPlayer or null pawns list.");
+                        // Log.Warning("[BetterMiliraFallenAngel] QuestPart_FinalizePermanentStay found null QuestPart_JoinPlayer or null pawns list.");
                         continue;
                     }
                     jp?.pawns?.Remove(pawn);
@@ -698,7 +698,7 @@ namespace BetterFallenAngel
                 // }
                 if (pawn == null)
                 {
-                    Log.Warning("[BetterMiliraFallenAngel] QuestPart_FinalizePermanentStay found null pawn.");
+                    // Log.Warning("[BetterMiliraFallenAngel] QuestPart_FinalizePermanentStay found null pawn.");
                     return;
                 } 
 
