@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<LanguageData>
-
-  <!-- AbilityDef: BMA_Ability_Communicator -->
-  <BMA_Ability_Communicator.label>Communicator</BMA_Ability_Communicator.label>
-  <BMA_Ability_Communicator.description>Attempt to establish contact with the Sky City.</BMA_Ability_Communicator.description>
-
-</LanguageData>

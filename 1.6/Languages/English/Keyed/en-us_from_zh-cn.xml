@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+
+  <Milira_FallenAngel_Action_A>Rescue the broken-winged angel and bring her to the colony</Milira_FallenAngel_Action_A>
+  <Milira_FallenAngel_Action_B>Ignore her and leave her to fend for herself</Milira_FallenAngel_Action_B>
+  <Milira_Communicator>Cradol Communicator</Milira_Communicator>
+  <label>Cradol Communicator</label>
+  <description>A simple communication device. Using Milira's encryption algorithm, it attempts to connect to the far-off Sky City.</description>
+  <CommunicatorDisconnected>【Signal lost】Nothing but dead silence...</CommunicatorDisconnected>
+  <Close>Close terminal</Close>
+  <R_text>【Accessing encrypted channel...】【Connection established】</R_text>
+  <R_OptA>We found a badly injured Milira on the surface. She taught us how to access this channel.</R_OptA>
+  <R_Cancel>(Hang up) Sorry, wrong channel.</R_Cancel>
+  <R_OptA_S_text>【Alert】Milira?! You lowly ground-dwellers—how dare you taint the noble skyborn! What have you done to her?!</R_OptA_S_text>
+  <R_OptA_S_OptA>Spare me the arrogance. She's safe, recovering in our infirmary. Since we're connected, talk to her yourselves.</R_OptA_S_OptA>
+  <R_OptA_S_OptB>She's not dead yet, but she's close. If you still want your precious "asset" back, bring supplies to trade! Otherwise...</R_OptA_S_OptB>
+  <R_OptA_S_OptA_S_text>Is that you? What happened?</R_OptA_S_OptA_S_text>
+  <R_OptA_S_OptA_S_OptA>Something went wrong on my journey. These newcomers saved me.</R_OptA_S_OptA_S_OptA>
+  <R_OptA_S_OptB_S_text>Greedy ground maggots... I knew this was all you were good for! Send her back and you'll be rewarded. Take the goods and get lost!</R_OptA_S_OptB_S_text>
+  <R_OptA_S_OptB_S_OptA>That's more like it. That's what we wanted.</R_OptA_S_OptB_S_OptA>
+  <R_OptA_S_OptA_S_OptA_S_text>They didn't hurt you, did they? Position locked. The shuttle can launch at any time—do you need pickup?</R_OptA_S_OptA_S_OptA_S_text>
+  <R_OptA_S_OptA_S_OptA_S_OptA>...No. I'm not going back. The surface isn't the "hell" the scriptures describe. They saved me and gave me a place to stay. I want... to see this real world with my own eyes.</R_OptA_S_OptA_S_OptA_S_OptA>
+  <Milira_FallenAngel_Action_Desc>A Milira angel from the skies has fallen here. Her white wings are caked with dust, and her faint breathing sounds painfully loud in the silence. Her life is about to go out—what should we do?</Milira_FallenAngel_Action_Desc>
+  <Milira_FallenAngel_Action_A_Desc>"Cough... you... didn't kill me?"
+        Though you dragged her back from death, she still keeps her guard up around groundfolk.
+        "Since you saved me, could you do one more good deed? Help me build a communicator... I must contact Cradol."</Milira_FallenAngel_Action_A_Desc>
+  <BetterFallenAngel>Better Fallen Angel</BetterFallenAngel>
+  <Milira_FallenAngel_Title>Fallen Angel</Milira_FallenAngel_Title>
+  <Milira_FallenAngel_Accept_Desc>She was once a proud skyborn, but an accident broke her wings here.
+        
+        Now the choice is yours: help her return to the skies, or show her that the ground also has warmth worth longing for.</Milira_FallenAngel_Accept_Desc>
+  <BFA_FA_Accept_ShuttleArrived_Label>Recovery shuttle arrived</BFA_FA_Accept_ShuttleArrived_Label>
+  <BFA_FA_Accept_ShuttleArrived_Text>The recovery shuttle dispatched by Cradol has landed. They demand you hand over the Milira immediately. Load the designated pawn onto the ship.</BFA_FA_Accept_ShuttleArrived_Text>
+  <BFA_FA_Accept_Destroyed_Label>Recovery shuttle destroyed</BFA_FA_Accept_Destroyed_Label>
+  <BFA_FA_Accept_Destroyed_Text>The shuttle responsible for retrieving the Milira has been destroyed. Cradol has cut the comms. Quest failed.</BFA_FA_Accept_Destroyed_Text>
+  <RewardsDelivered>Cradol supply pod delivered</RewardsDelivered>
+  <Milira_FallenAngel_Leave_Title>Angel departs</Milira_FallenAngel_Leave_Title>
+  <Milira_FallenAngel_Leave_Desc>Unable to reach Cradol no matter what, [PAWN] falls into deep despair. She decides to set out alone in search of a way home.
+        Before leaving, she bows deeply to you as a final farewell.</Milira_FallenAngel_Leave_Desc>
+  <Back>Back</Back>
+
+</LanguageData>

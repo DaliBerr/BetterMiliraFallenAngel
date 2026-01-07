@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+
+  <BFA_FallenAngel_Accept.label>Fallen Angel — Acceptance</BFA_FallenAngel_Accept.label>
+  <BFA_FallenAngel_Accept.questDescriptionRules.rulesStrings.0>questDescription-&gt;A Milira angel from the skies has fallen here. Her white wings are caked with dust, and her faint breathing sounds painfully loud in the silence. Her life is about to go out—what should we do?</BFA_FallenAngel_Accept.questDescriptionRules.rulesStrings.0>
+  <BFA_FallenAngel_Accept.questNameRules.rulesStrings.0>questName-&gt;Fallen Angel — Acceptance</BFA_FallenAngel_Accept.questNameRules.rulesStrings.0>
+  <BFA_FallenAngel_Accept.questNameRules.rulesStrings.1>questName-&gt;Fallen Angel — Welcome</BFA_FallenAngel_Accept.questNameRules.rulesStrings.1>
+  <BFA_FallenAngel_Accept.questNameRules.rulesStrings.2>questName-&gt;Fallen Angel — Lodging</BFA_FallenAngel_Accept.questNameRules.rulesStrings.2>
+
+</LanguageData>
