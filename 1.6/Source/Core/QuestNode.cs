@@ -125,6 +125,8 @@ namespace BetterFallenAngel
             string leaveAfterSignal = QuestGen.GenerateNewSignal("FA_Accept_LeaveAfter");
 
             string leaveLetterSignal = QuestGen.GenerateNewSignal("LeaveLetter");
+
+            string stayEndSignal = QuestGen.GenerateNewSignal("FA_Accept_StayEnd");
             quest.Letter(
                 LetterDefOf.PositiveEvent,
                 startSignal,
@@ -196,14 +198,22 @@ namespace BetterFallenAngel
 
             quest.AddPart(leave);
 
+            var finalizeStay = new CoreUtilities.QuestPart_FinalizePermanentStay
+            {
+                inSignal = leaveAfterSignal,
+                outSignalEnd = stayEndSignal,
+                pawn = fallenAngel
+            };
+            quest.AddPart(finalizeStay);
+
             var endQuestOnStay = new QuestPart_QuestEnd
             {
-                inSignal = leaveAfterSignal,      // 监听“留下”的信号
+                inSignal = stayEndSignal,      // 监听“留下”的信号
                 outcome = QuestEndOutcome.Success // 判定任务成功
             };
             quest.AddPart(endQuestOnStay);
 
-            // —— 立即启动整个链条 —— 
+            // —— 立即启动整个链条 ——
             quest.SignalPass(null, null, startSignal);
         }
 
