@@ -2,7 +2,7 @@
 <LanguageData>
 
   <!-- ThingDef: BMA_Communicator -->
-  <BMA_Communicator.label>通讯器</BMA_Communicator.label>
-  <BMA_Communicator.description>来自天空之城的通讯器。</BMA_Communicator.description>
+  <BMA_Communicator.label>卡利多通讯器</BMA_Communicator.label>
+  <BMA_Communicator.description>一台根据米莉拉记忆中的图纸拼凑而成的通讯设备。虽然外观粗糙，充满了地面废土风格，但其核心频率直指那座神秘的天空之城。</BMA_Communicator.description>
 
 </LanguageData>

@@ -1,65 +1,67 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <LanguageData>
-    <Milira_FallenAngel_Action_A>把Milira救回殖民地</Milira_FallenAngel_Action_A>
-    <Milira_FallenAngel_Action_B>让她自生自灭</Milira_FallenAngel_Action_B>
-    <Milira_Communicator>Milira通讯器</Milira_Communicator>
+    <Milira_FallenAngel_Action_A>将这位折翼天使救回殖民地</Milira_FallenAngel_Action_A>
+    <Milira_FallenAngel_Action_B>无视她，任由其自生自灭</Milira_FallenAngel_Action_B>
+    <Milira_Communicator>卡利多通讯器</Milira_Communicator>
 
-    <label>Milira通讯器</label>
-    <description>尝试和天空之城进行连接。</description>
+    <label>卡利多通讯器</label>
+    <description>一台简易的通讯装置。利用米莉拉提供的加密算法，尝试连接那座遥不可及的天空之城。</description>
 
-    <CommunicatorDisconnected>通讯器无法连接到任何频道</CommunicatorDisconnected>
-    <Close>关闭</Close>
+    <CommunicatorDisconnected>【信号丢失】信号仅是一片死寂……</CommunicatorDisconnected>
+    <Close>关闭终端</Close>
 
-    <R_text>通讯接入……</R_text>
-    <R_OptA>我们发现了一名受伤的Milira,是她教我们做的</R_OptA>
-    <R_Cancel>我们打错了</R_Cancel>
+    <R_text>【正在接入加密频道...】【连接建立成功】</R_text>
+    <R_OptA>我们在地面发现了一名重伤的米莉拉，是她教我们接入这个频道的。</R_OptA>
+    <R_Cancel>（挂断）抱歉，打错频道了。</R_Cancel>
 
-    <R_OptA_S_text>你们对她做什么了？！</R_OptA_S_text>
-    <R_OptA_S_OptA>她现在正躺在医疗室里，你们直接跟她聊吧</R_OptA_S_OptA>
-    <R_OptA_S_OptB>如果你们想要她继续活着，就送点东西来吧！不然的话。。。</R_OptA_S_OptB>
+    <R_OptA_S_text>【警报】米莉拉？！卑贱的地面生物，你们竟敢玷污高贵的天空眷属！你们对她做了什么？！</R_OptA_S_text>
+    <R_OptA_S_OptA>收起你的傲慢。她现在很安全，正在我们的医疗室里养伤。既然连上了，你们自己聊吧。</R_OptA_S_OptA>
+    <R_OptA_S_OptB>她还没死，但也快了。如果你们还想要回这个宝贵的“资产”，就拿物资来换！否则...</R_OptA_S_OptB>
 
 
-    <R_OptA_S_OptA_S_text>需要我们来接你吗？</R_OptA_S_OptA_S_text>
-    <R_OptA_S_OptA_S_OptA>我应该不回去了，他们非常友善，和传闻中的地面人不同，我决定暂时和他们待在一起。</R_OptA_S_OptA_S_OptA>
+    <R_OptA_S_OptA_S_text>是你吗？发生什么事了？</R_OptA_S_OptA_S_text>
+    <R_OptA_S_OptA_S_OptA>旅行中出了一些意外，我被这群新来的家伙救了。</R_OptA_S_OptA_S_OptA>
 
-    <R_OptA_S_OptB_S_text>我就知道，你们这些地面人都是一群贪婪的野兽！先把我们的人送回来，自然会给你们答谢</R_OptA_S_OptB_S_text>
-    <R_OptA_S_OptB_S_OptA>那就这样说定了</R_OptA_S_OptB_S_OptA>
+    <R_OptA_S_OptB_S_text>贪婪的地面蛆虫……我就知道你们只有这种德行！把人送回来，赏赐少不了你们的。拿到东西就滚远点！</R_OptA_S_OptB_S_text>
+    <R_OptA_S_OptB_S_OptA>这就对了，这就是我们要的。</R_OptA_S_OptB_S_OptA>
 
-    <R_OptA_S_OptA_S_OptA_S_text>需要我们来接你吗？</R_OptA_S_OptA_S_OptA_S_text>
-    <R_OptA_S_OptA_S_OptA_S_OptA>我应该不回去了，他们非常友善，和传闻中的地面人不同，我决定暂时和他们待在一起。</R_OptA_S_OptA_S_OptA_S_OptA>
+    <R_OptA_S_OptA_S_OptA_S_text>这群野蛮人没把你怎么样吧？定位已锁定，穿梭机随时可以起飞，需要接你回来吗？</R_OptA_S_OptA_S_OptA_S_text>
+    <R_OptA_S_OptA_S_OptA_S_OptA>……不。我不回去了。这里的地面并不像教典里描述的那样是“地狱”。他们救了我，给了我容身之所。我想……用自己的眼睛去看看这个真实的世界。</R_OptA_S_OptA_S_OptA_S_OptA>
 
-    <Milira_FallenAngel_Action_Desc>一名奄奄一息的Milira正躺在地上，似乎受了重伤。她微弱的呼吸声在寂静中显得格外明显。我们应该怎么做？</Milira_FallenAngel_Action_Desc>
+    <Milira_FallenAngel_Action_Desc>一位来自天空的米莉拉天使坠落在了这里。她洁白的羽翼沾满尘土，微弱的呼吸声在寂静中显得格外刺耳。她的生命之火即将熄灭，我们该怎么做？</Milira_FallenAngel_Action_Desc>
     
     <Milira_FallenAngel_Action_A_Desc>
-        你们把我从死神手中救了回来，我欠你们一个人情。可以再帮我一个忙吗？帮我用通讯器和卡利多联系一下。
+        “咳……你们……没有杀我？”
+        虽然是你把她从死神手里抢了回来，但她依然对地面人保持着警惕。
+        “既然救了我，能不能好人做到底？帮我造个通讯器……我必须联系卡利多。”
     </Milira_FallenAngel_Action_A_Desc>
     
     <BetterFallenAngel>更好的堕天使</BetterFallenAngel>
     <Milira_FallenAngel_Title>堕天使</Milira_FallenAngel_Title>
 
     <Milira_FallenAngel_Accept_Desc>
-        她是来自天空之城的堕天使，她受了重伤，正需要你的帮助。
-
-        你可以选择让她留下来，和你一起生活；也可以选择把她送回去。
+        她曾是高傲的天空眷族，却因意外折翼于此。
+        
+        现在，抉择权在你手中：是让她重返天空，还是让她明白——地面也有值得留恋的温暖。
     </Milira_FallenAngel_Accept_Desc>
 
     <BFA_FA_Accept_ShuttleArrived_Label>接送飞船抵达</BFA_FA_Accept_ShuttleArrived_Label>
     <BFA_FA_Accept_ShuttleArrived_Text>
-    用于运送堕天使的穿梭机已抵达，请将指定对象装载上船。
+        卡利多派出的回收穿梭机已降落。他们要求立刻交出那名米莉拉，请将指定对象装载上船。
     </BFA_FA_Accept_ShuttleArrived_Text>
 
-    <BFA_FA_Accept_Destroyed_Label>穿梭机被摧毁</BFA_FA_Accept_Destroyed_Label>
+    <BFA_FA_Accept_Destroyed_Label>回收船被击毁</BFA_FA_Accept_Destroyed_Label>
     <BFA_FA_Accept_Destroyed_Text>
-        用于运送堕天使的穿梭机被摧毁。任务失败。
+        负责接送米莉拉的穿梭机已被摧毁。卡利多切断了通讯，任务失败。
     </BFA_FA_Accept_Destroyed_Text>
     
-    <RewardsDelivered>回报已送达</RewardsDelivered>
+    <RewardsDelivered>卡利多物资舱已投放</RewardsDelivered>
 
-    <Milira_FallenAngel_Leave_Title>堕天使离开</Milira_FallenAngel_Leave_Title>
+    <Milira_FallenAngel_Leave_Title>天使离去</Milira_FallenAngel_Leave_Title>
     <Milira_FallenAngel_Leave_Desc>
-        由于你没有联系上卡利多，[PAWN]决定自行离开。
-        她会在离开前和你道别。
+        由于始终无法联系上卡利多，[PAWN] 感到深深的绝望。她决定独自踏上寻找归途的旅程。
+        临行前，她向你深深鞠了一躬，作为最后的道别。
     </Milira_FallenAngel_Leave_Desc>
 
-    <Back>返回上一级</Back>
+    <Back>返回上级选项</Back>
 </LanguageData>

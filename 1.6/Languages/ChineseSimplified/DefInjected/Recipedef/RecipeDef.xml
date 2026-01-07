@@ -3,7 +3,7 @@
 <LanguageData>
 
   <!-- RecipeDef: BMA_Communicator_Recipe -->
-  <BMA_Communicator_Recipe.label>制造通讯器</BMA_Communicator_Recipe.label>
+  <BMA_Communicator_Recipe.label>组装卡利多通讯器</BMA_Communicator_Recipe.label>
   <BMA_Communicator_Recipe.description>使用一些简单的零件组装一个通讯器。</BMA_Communicator_Recipe.description>
-  <BMA_Communicator_Recipe.jobString>正在制造通讯器...</BMA_Communicator_Recipe.jobString>
+  <BMA_Communicator_Recipe.jobString>正在组装通讯器...正在调试加密频率...</BMA_Communicator_Recipe.jobString>
 </LanguageData>
