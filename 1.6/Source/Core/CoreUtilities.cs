@@ -36,8 +36,24 @@ namespace BetterFallenAngel
             DefDatabase<FactionDef>.GetNamedSilentFail("Kiiro_PlayerFaction"),
         };
 
+        /// <summary>
+        /// summary: 判断当前玩家派系是否为 Milira 帝国玩家派系（Milira_Imperium_PlayerFaction）。
+        /// param: 无
+        /// return: 若为帝国玩家派系则返回 true，否则返回 false
+        /// </summary>
+        private static bool IsImperiumPlayerFaction()
+        {
+            var imperiumDef = DefDatabase<FactionDef>.GetNamedSilentFail("Milira_Imperium_PlayerFaction");
+            return imperiumDef != null && Faction.OfPlayer?.def == imperiumDef;
+        }
+
         private static void UnlockGoodWill(bool isUnlocked)
         {
+            if (IsImperiumPlayerFaction())
+            {
+                Log.Message("[BetterFallenAngel] Skip UnlockGoodWill(bool): Imperium player faction detected.");
+                return;
+            }
 
             var def = DefDatabase<FactionDef>.GetNamedSilentFail("Milira_Faction");
             if (def == null)
@@ -45,7 +61,7 @@ namespace BetterFallenAngel
                 Log.Warning("[Milira] FactionDef 'Milira_Faction' not found.");
                 return;
             }
-
+            
 
             var miliraFactions = Find.FactionManager.AllFactionsListForReading
                 .Where(f => f.def == def)
@@ -252,6 +268,13 @@ namespace BetterFallenAngel
         }
         public static void UnlockGoodWill(ExtendBool flag)
         {
+
+            if (IsImperiumPlayerFaction())
+            {
+                // 不想刷日志的话可以删掉这一行
+                Log.Message("[BetterFallenAngel] Skip UnlockGoodWill(bool): Imperium player faction detected.");
+                return;
+            }
             if (flag == ExtendBool.True)
             {
                 UnlockGoodWill(true);

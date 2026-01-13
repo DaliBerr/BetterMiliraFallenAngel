@@ -65,13 +65,8 @@ namespace BetterFallenAngel
                     // Log.Message("[BetterMiliraFallenAngel] Quest.End postfix exiting because outcome is not Success: " + outcome);
                     return;
                 }
-                // 只处理你这个 Mod 的那条“当前注册任务”
                 if (WorldComponent_BFA.Instance == null) return;
                 if (WorldComponent_BFA.Instance.Quest != __instance) return;
-
-                // 只在“玩家走了通讯器留下选项”后才执行，避免误伤其他成功结束
-                // （你对话里选择留下会把 suppressFADialog 设为 true）:contentReference[oaicite:5]{index=5}
-                // if (!WorldComponent_BFA.Instance.suppressFADialog) return;
 
                 Pawn angel = TryFindMarkedAngelFromQuest(__instance) ?? TryFindMarkedAngelOnAnyPlayerMap();
                 if (angel == null){
