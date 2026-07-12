@@ -182,6 +182,7 @@ namespace BetterFallenAngel
 
                 pawns = new List<Pawn> { fallenAngel },
                 sendStandardLetter = true,
+                leaveOnCleanup = false,
             };
 
             var leaveLetter = new QuestPart_Letter

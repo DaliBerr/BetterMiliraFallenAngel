@@ -130,7 +130,11 @@ namespace BetterFallenAngel
                         sig.args.Add("SOURCE", sourceFallenAngel);
                         Find.SignalManager.SendSignal(sig);
                     }
-                    StartFallenAngelQuest("BFA_FallenAngel_Accept", sourceFallenAngel, target);
+                    if (!StartFallenAngelQuest("BFA_FallenAngel_Accept", sourceFallenAngel, target))
+                    {
+                        Messages.Message("[BetterMiliraFallenAngel] Failed to start Fallen Angel quest.", MessageTypeDefOf.RejectInput, false);
+                        return;
+                    }
 
                     var label = !string.IsNullOrEmpty(Props.AcceptLabelKey) ? Props.AcceptLabelKey.Translate() : "Milira_FallenAngel_Action_A".Translate();
                     var text = !string.IsNullOrEmpty(Props.AcceptTextKey) ? Props.AcceptTextKey.Translate(target.Named("PAWN"), sourceFallenAngel.Named("SOURCE")) : "Milira_FallenAngel_Action_A_Desc".Translate(target.LabelShortCap);
@@ -149,7 +153,11 @@ namespace BetterFallenAngel
                     }
 
                     // StartFallenAngelQuest("BFA_FallenAngel_Reject", sourceFallenAngel, target);
-                    CoreUtilities.TryStartRejectQuest();
+                    if (!CoreUtilities.TryStartRejectQuest(sourceFallenAngel))
+                    {
+                        Messages.Message("[BetterMiliraFallenAngel] Failed to start Milira church quest.", MessageTypeDefOf.RejectInput, false);
+                        return;
+                    }
                     var label = !string.IsNullOrEmpty(Props.RejectLabelKey) ? Props.RejectLabelKey.Translate() : "Milira_FallenAngel_Action_B".Translate();
                     var text = !string.IsNullOrEmpty(Props.RejectTextKey) ? Props.RejectTextKey.Translate(target.Named("PAWN"), sourceFallenAngel.Named("SOURCE")) : "Milira_FallenAngel_Action_B_Desc".Translate(target.LabelShortCap);
                     Find.LetterStack.ReceiveLetter(label, text, LetterDefOf.NegativeEvent, new LookTargets(target, sourceFallenAngel));
@@ -160,12 +168,21 @@ namespace BetterFallenAngel
         }
 
 
-        private static void StartFallenAngelQuest(string questDefName, Pawn fallenAngel, Pawn subject)
+        private static bool StartFallenAngelQuest(string questDefName, Pawn fallenAngel, Pawn subject)
         {
             var def = DefDatabase<QuestScriptDef>.GetNamedSilentFail(questDefName);
-            if (def == null) return;
+            if (def == null || fallenAngel == null) return false;
+            if (WorldComponent_BFA.Instance?.QuestActive == true) return false;
 
             var map = fallenAngel?.Map ?? Find.CurrentMap;
+            if (map == null) return false;
+
+            Milira.MiliraGameComponent_OverallControl control = CoreUtilities.MiliraControl;
+            Pawn previousPawn = control?.pawn;
+            Pawn previousPawnInColony = control?.pawnInColony;
+            bool previousChurchFlag = control?.canSendChurchFirstTime ?? false;
+            FallenAngelStoryState previousState = WorldComponent_BFA.Instance?.storyState ?? FallenAngelStoryState.None;
+
             var slate = new Slate();
             slate.Set("fallenAngel", fallenAngel);
             slate.Set("subject", subject);
@@ -173,12 +190,44 @@ namespace BetterFallenAngel
             slate.Set("points", StorytellerUtility.DefaultThreatPointsNow(map)); // 给战斗事件用
             slate.Set("playerFaction", Faction.OfPlayer);
 
-            var quest = QuestUtility.GenerateQuestAndMakeAvailable(def, slate);
-            if (quest != null)
+            try
             {
+                var quest = QuestUtility.GenerateQuestAndMakeAvailable(def, slate);
+                if (quest == null)
+                {
+                    RestoreMiliraState(control, previousPawn, previousPawnInColony, previousChurchFlag, previousState);
+                    return false;
+                }
+                CoreUtilities.ClaimAngelForBfa(fallenAngel);
                 QuestUtility.SendLetterQuestAvailable(quest);
+                return true;
             }
-            
+            catch (Exception ex)
+            {
+                RestoreMiliraState(control, previousPawn, previousPawnInColony, previousChurchFlag, previousState);
+                Log.Error("[BetterMiliraFallenAngel] Failed to generate acceptance quest: " + ex);
+                return false;
+            }
+        }
+
+        private static void RestoreMiliraState(
+            Milira.MiliraGameComponent_OverallControl control,
+            Pawn previousPawn,
+            Pawn previousPawnInColony,
+            bool previousChurchFlag,
+            FallenAngelStoryState previousState)
+        {
+            if (control != null)
+            {
+                control.pawn = previousPawn;
+                control.pawnInColony = previousPawnInColony;
+                control.canSendChurchFirstTime = previousChurchFlag;
+            }
+            if (WorldComponent_BFA.Instance != null)
+            {
+                WorldComponent_BFA.Instance.storyState = previousState;
+                WorldComponent_BFA.Instance.Quest = null;
+            }
         }
 
     }

@@ -29,6 +29,98 @@ namespace BetterFallenAngel
             Find.WindowStack.Add(dialog);
         }
 
+        public static void PrepareInitialFallenAngel(Pawn pawn)
+        {
+            if (pawn == null || pawn.health == null) return;
+
+            bool firstRegistration = WorldComponent_BFA.Instance?.RegisterInitialAngel(pawn) == true;
+            if (!pawn.health.hediffSet.HasHediff(FallenMiliraDefOf.Milira_FallenAngelMark))
+            {
+                pawn.health.AddHediff(FallenMiliraDefOf.Milira_FallenAngelMark);
+            }
+            if (!pawn.health.hediffSet.HasHediff(FallenMiliraDefOf.Milira_FallenAngelAura))
+            {
+                pawn.health.AddHediff(HediffMaker.MakeHediff(FallenMiliraDefOf.Milira_FallenAngelAura, pawn));
+            }
+
+            if (firstRegistration)
+            {
+                UnlockGoodWill(ExtendBool.False);
+            }
+        }
+
+        public static MiliraGameComponent_OverallControl MiliraControl
+            => Current.Game?.GetComponent<MiliraGameComponent_OverallControl>();
+
+        public static void ClaimAngelForBfa(Pawn pawn)
+        {
+            if (pawn == null) return;
+
+            WorldComponent_BFA.Instance?.RegisterInitialAngel(pawn);
+            if (WorldComponent_BFA.Instance != null)
+            {
+                WorldComponent_BFA.Instance.managedAngel = pawn;
+                WorldComponent_BFA.Instance.storyState = FallenAngelStoryState.Active;
+            }
+
+            MiliraGameComponent_OverallControl control = MiliraControl;
+            if (control != null)
+            {
+                control.canSendChurchFirstTime = false;
+                control.pawn = null;
+                control.pawnInColony = null;
+            }
+
+            QuestScriptDef churchDef = DefDatabase<QuestScriptDef>.GetNamedSilentFail("Milira_FallenAngel_ToChurch");
+            if (churchDef != null && Find.QuestManager != null)
+            {
+                foreach (Quest churchQuest in Find.QuestManager.QuestsListForReading
+                    .Where(q => q != null
+                        && (q.State == QuestState.NotYetAccepted || q.State == QuestState.Ongoing)
+                        && q.root == churchDef)
+                    .ToList())
+                {
+                    churchQuest.End(QuestEndOutcome.Fail, false, false);
+                }
+            }
+        }
+
+        public static void SyncPermanentAngel(Pawn pawn)
+        {
+            if (pawn == null || pawn.Dead) return;
+
+            if (pawn.IsPrisonerOfColony || pawn.IsSlaveOfColony)
+            {
+                RecruitUtility.Recruit(pawn, Faction.OfPlayer);
+            }
+            else if (pawn.Faction != Faction.OfPlayer)
+            {
+                pawn.SetFaction(Faction.OfPlayer);
+            }
+            pawn.guest?.SetGuestStatus(null);
+
+            WorldComponent_BFA.Instance?.MarkPermanent(pawn);
+            MiliraGameComponent_OverallControl control = MiliraControl;
+            if (control != null)
+            {
+                control.canSendChurchFirstTime = false;
+                control.pawn = null;
+                control.pawnInColony = pawn;
+            }
+        }
+
+        public static void MarkAngelLeft(Pawn pawn)
+        {
+            WorldComponent_BFA.Instance?.MarkLeft(pawn);
+            MiliraGameComponent_OverallControl control = MiliraControl;
+            if (control != null)
+            {
+                control.canSendChurchFirstTime = false;
+                if (pawn == null || control.pawn == pawn) control.pawn = null;
+                if (pawn == null || control.pawnInColony == pawn) control.pawnInColony = null;
+            }
+        }
+
         static List<FactionDef> alwaysFriendlyFactionDef = new List<FactionDef>
         {
             DefDatabase<FactionDef>.GetNamedSilentFail("Kiiro_Faction"),
@@ -155,11 +247,17 @@ namespace BetterFallenAngel
         /// </summary>
         public static void FixLegacyQuest(Quest quest)
         {
-            if (quest == null || quest.State != QuestState.Ongoing) return;
+            if (quest == null
+                || quest.State != QuestState.NotYetAccepted && quest.State != QuestState.Ongoing) return;
 
             // 旧存档里我们只认 namespaced 信号（和 QuestGen.GenerateNewSignal 的格式一致）
             string leaveAfterSignal = $"Quest{quest.id}.FA_Accept_LeaveAfter";
             string stayEndSignal = $"Quest{quest.id}.FA_Accept_StayEnd";
+
+            foreach (QuestPart_Leave leave in quest.PartsListForReading.OfType<QuestPart_Leave>())
+            {
+                leave.leaveOnCleanup = false;
+            }
 
             // 1) 把旧存档里 “QuestEnd 监听 LeaveAfter” 的部件全部改写为监听 StayEnd（避免短路）
             RewriteLegacyQuestEndSignals(quest, leaveAfterSignal, stayEndSignal);
@@ -171,7 +269,7 @@ namespace BetterFallenAngel
 
             if (!hasFinalize)
             {
-                Pawn angel = TryFindAngelFromQuestJoinPlayer(quest);
+                Pawn angel = FindManagedAngel(quest);
 
                 var finalize = new QuestPart_FinalizePermanentStay
                 {
@@ -182,6 +280,16 @@ namespace BetterFallenAngel
                 quest.AddPart(finalize);
 
                 // Log.Message($"[BetterFallenAngel] FixLegacyQuest: 注入 FinalizePermanentStay (LeaveAfter -> StayEnd), questId={quest.id}");
+            }
+            else
+            {
+                foreach (QuestPart_FinalizePermanentStay finalize in quest.PartsListForReading
+                    .OfType<QuestPart_FinalizePermanentStay>()
+                    .Where(p => p != null && p.inSignal == leaveAfterSignal))
+                {
+                    if (finalize.pawn == null) finalize.pawn = FindManagedAngel(quest);
+                    if (finalize.outSignalEnd.NullOrEmpty()) finalize.outSignalEnd = stayEndSignal;
+                }
             }
 
             // 3) 确保 QuestEnd 监听 StayEnd 存在
@@ -250,21 +358,99 @@ namespace BetterFallenAngel
         /// param: quest 任务实例
         /// return: 找到则返回 Pawn，否则返回 null
         /// </summary>
-        private static Pawn TryFindAngelFromQuestJoinPlayer(Quest quest)
+        public static Pawn FindManagedAngel(Quest quest = null)
         {
-            if (quest == null) return null;
+            Pawn persisted = WorldComponent_BFA.Instance?.managedAngel;
+            if (persisted != null) return persisted;
 
             try
             {
-                return quest.PartsListForReading
-                    .OfType<QuestPart_JoinPlayer>()
-                    .SelectMany(p => p.pawns ?? Enumerable.Empty<Pawn>())
-                    .FirstOrDefault();
+                if (quest != null)
+                {
+                    Pawn fromJoin = quest.PartsListForReading
+                        .OfType<QuestPart_JoinPlayer>()
+                        .SelectMany(p => p.pawns ?? Enumerable.Empty<Pawn>())
+                        .FirstOrDefault(IsMarkedAngel);
+                    if (fromJoin != null) return fromJoin;
+
+                    Pawn fromLeave = quest.PartsListForReading
+                        .OfType<QuestPart_Leave>()
+                        .SelectMany(p => p.pawns ?? Enumerable.Empty<Pawn>())
+                        .FirstOrDefault(IsMarkedAngel);
+                    if (fromLeave != null) return fromLeave;
+
+                    Pawn fromDropPods = quest.PartsListForReading
+                        .OfType<QuestPart_DropPods>()
+                        .SelectMany(p => p.Things?.OfType<Pawn>() ?? Enumerable.Empty<Pawn>())
+                        .FirstOrDefault(IsMarkedAngel);
+                    if (fromDropPods != null) return fromDropPods;
+                }
+
+                Pawn fromMaps = Find.Maps
+                    .Where(m => m?.mapPawns != null)
+                    .SelectMany(m => m.mapPawns.AllPawns)
+                    .FirstOrDefault(IsMarkedAngel);
+                if (fromMaps != null) return fromMaps;
+
+                return Find.WorldPawns?.AllPawnsAliveOrDead?.FirstOrDefault(IsMarkedAngel);
             }
             catch
             {
                 return null;
             }
+        }
+
+        public static void ReconcileAfterLoad()
+        {
+            WorldComponent_BFA component = WorldComponent_BFA.Instance;
+            if (component == null) return;
+
+            Quest quest = component.Quest;
+            FixLegacyQuest(quest);
+
+            Pawn angel = FindManagedAngel(quest);
+            if (angel != null)
+            {
+                component.managedAngel = angel;
+            }
+
+            if (quest != null
+                && (quest.State == QuestState.NotYetAccepted || quest.State == QuestState.Ongoing))
+            {
+                component.storyState = FallenAngelStoryState.Active;
+                ClaimAngelForBfa(angel);
+                TryAutoCloseLegacyAcceptQuest(quest);
+                return;
+            }
+
+            if (angel == null || angel.Dead || angel.Destroyed)
+            {
+                if (component.storyState == FallenAngelStoryState.Active)
+                {
+                    MarkAngelLeft(angel);
+                }
+                return;
+            }
+
+            if (component.storyState == FallenAngelStoryState.Permanent
+                || component.suppressFADialog && angel.Faction == Faction.OfPlayer)
+            {
+                SyncPermanentAngel(angel);
+            }
+            else if (component.storyState == FallenAngelStoryState.Rejected)
+            {
+                MiliraGameComponent_OverallControl control = MiliraControl;
+                if (control != null)
+                {
+                    control.pawn = angel;
+                    control.canSendChurchFirstTime = false;
+                }
+            }
+        }
+
+        private static bool IsMarkedAngel(Pawn pawn)
+        {
+            return pawn?.health?.hediffSet?.HasHediff(FallenMiliraDefOf.Milira_FallenAngelMark) == true;
         }
         public static void UnlockGoodWill(ExtendBool flag)
         {
@@ -298,19 +484,43 @@ namespace BetterFallenAngel
                 }
             }
         }
-        public static void TryStartRejectQuest()
+        public static bool TryStartRejectQuest(Pawn fallenAngel)
         {
             var def = DefDatabase<QuestScriptDef>.GetNamedSilentFail("Milira_FallenAngel_ToChurch");
-            if (def == null) return;
+            if (def == null || fallenAngel == null) return false;
+
+            bool alreadyExists = Find.QuestManager.QuestsListForReading
+                .Any(q => q != null
+                    && (q.State == QuestState.NotYetAccepted || q.State == QuestState.Ongoing)
+                    && q.root == def);
+            if (alreadyExists)
+            {
+                if (MiliraControl != null) MiliraControl.canSendChurchFirstTime = false;
+                WorldComponent_BFA.Instance?.MarkRejected(fallenAngel);
+                return true;
+            }
 
             Slate slate = new Slate();
-
-
-            Quest quest = QuestUtility.GenerateQuestAndMakeAvailable(def, slate);
-
-            if (quest != null)
+            MiliraGameComponent_OverallControl control = MiliraControl;
+            if (control != null)
             {
+                control.pawn = fallenAngel;
+            }
+
+            try
+            {
+                Quest quest = QuestUtility.GenerateQuestAndMakeAvailable(def, slate);
+                if (quest == null) return false;
+
                 QuestUtility.SendLetterQuestAvailable(quest);
+                if (control != null) control.canSendChurchFirstTime = false;
+                WorldComponent_BFA.Instance?.MarkRejected(fallenAngel);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("[BetterMiliraFallenAngel] Failed to generate church quest: " + ex);
+                return false;
             }
         }
 
@@ -576,17 +786,24 @@ namespace BetterFallenAngel
                 // 处理主触发：仅当启用时才响应
                 if (signal.tag == inSignal && enabledNow)
                 {
-                    LeaveQuestPartUtility.MakePawnsLeave(pawns, sendStandardLetter, quest, wakeUp);
-                    foreach (var p in pawns)
+                    Faction miliraFaction = Find.FactionManager.FirstFactionOfDef(MiliraDefOf.Milira_Faction);
+                    foreach (Pawn pawn in pawns.ToList())
                     {
-                        if (p != null && p.Spawned)
+                        if (pawn != null && miliraFaction != null && pawn.Faction != miliraFaction)
                         {
-                            // p.ExitMap(false, CellRect.Empty);
-                            p.SetFaction(Find.FactionManager.FirstFactionOfDef(MiliraDefOf.Milira_Faction));
-
+                            pawn.SetFaction(miliraFaction);
                         }
                     }
+                    LeaveQuestPartUtility.MakePawnsLeave(pawns, sendStandardLetter, quest, wakeUp);
+                    foreach (Pawn pawn in pawns.ToList())
+                    {
+                        CoreUtilities.MarkAngelLeft(pawn);
+                    }
                     CoreUtilities.SendQuestSignals(quest, "LeaveLetter");
+                    if (quest != null && quest.State == QuestState.Ongoing)
+                    {
+                        quest.End(QuestEndOutcome.Fail, false, false);
+                    }
                 }
             }
         
@@ -642,14 +859,17 @@ namespace BetterFallenAngel
                 Find.SignalManager.SendSignal(new Signal(nsStayEnd));
             }
 
-            // 兜底：如果由于零件缺失/顺序问题仍未结束，则直接结束
-            if (quest.State == QuestState.Ongoing)
+            QuestPart_FinalizePermanentStay finalize = quest.PartsListForReading
+                .OfType<QuestPart_FinalizePermanentStay>()
+                .FirstOrDefault(p => p != null && p.completed);
+
+            // 只有 Finalize 已确认执行时才允许兜底结束，避免把普通成功分支误判为永久留下。
+            if (quest.State == QuestState.Ongoing && finalize != null)
             {
-                // Log.Warning($"[BetterMiliraFallenAngel] Legacy quest auto-close fallback: EndQuest(Success) questId={quest.id}");
-                quest.End(QuestEndOutcome.Success, 0, null, null, QuestPart.SignalListenMode.OngoingOnly, false, false);
+                quest.End(QuestEndOutcome.Success, false, false);
             }
 
-            return true;
+            return finalize != null;
         }
 
         public class QuestPart_FinalizePermanentStay : QuestPart
@@ -657,6 +877,7 @@ namespace BetterFallenAngel
             public string inSignal;
             public string outSignalEnd;
             public Pawn pawn;
+            public bool completed;
 
             /// <summary>
             /// summary: 收到信号后，将目标 Pawn 永久转为玩家阵营，并解除 JoinPlayer 的托管，然后触发 outSignalEnd。
@@ -670,9 +891,11 @@ namespace BetterFallenAngel
                     // Log.Warning("[BetterMiliraFallenAngel] QuestPart_FinalizePermanentStay received unexpected signal: " + signal.tag);
                     return;
                 }
+                if (completed) return;
 
-                TryDetachFromJoinPlayerParts();
-                TryMakePawnPermanentColonist();
+                TryDetachFromQuestParts();
+                CoreUtilities.SyncPermanentAngel(pawn);
+                completed = true;
 
                 if (!string.IsNullOrEmpty(outSignalEnd))
                 {
@@ -689,7 +912,7 @@ namespace BetterFallenAngel
             /// param: 无
             /// return: 无
             /// </summary>
-            private void TryDetachFromJoinPlayerParts()
+            private void TryDetachFromQuestParts()
             {
                 if (quest == null || pawn == null) return;
 
@@ -702,43 +925,12 @@ namespace BetterFallenAngel
                     }
                     jp?.pawns?.Remove(pawn);
                 }
-            }
 
-            /// <summary>
-            /// summary: 强制把 Pawn 设为玩家阵营，并尽量清掉访客状态（防止显示为中立/访客）。
-            /// param: 无
-            /// return: 无
-            /// </summary>
-            private void TryMakePawnPermanentColonist()
-            {
-                // try
-                // {
-                //     pawn.guest?.SetGuestStatus(null, GuestStatus.Guest);
-                // }
-                // catch
-                // {
-                //     // 某些版本签名差异时忽略，不影响主要逻辑
-                // }
-                if (pawn == null)
+                foreach (QuestPart_Leave leave in quest.PartsListForReading.OfType<QuestPart_Leave>())
                 {
-                    // Log.Warning("[BetterMiliraFallenAngel] QuestPart_FinalizePermanentStay found null pawn.");
-                    return;
-                } 
-
-                if (pawn.Faction != Faction.OfPlayer)
-                {
-                    pawn.SetFaction(Faction.OfPlayer);
+                    leave.leaveOnCleanup = false;
+                    leave.pawns?.Remove(pawn);
                 }
-
-                // 保险：如果是 Guest/Prisoner 等，尽量清回 None
-                // try
-                // {
-                //     pawn.guest?.SetGuestStatus(null, GuestStatus.Guest);
-                // }
-                // catch
-                // {
-                //     // 某些版本签名差异时忽略，不影响主要逻辑
-                // }
             }
             public override void ExposeData()
             {
@@ -746,6 +938,7 @@ namespace BetterFallenAngel
                 Scribe_Values.Look(ref inSignal, "inSignal");
                 Scribe_Values.Look(ref outSignalEnd, "outSignalEnd");
                 Scribe_References.Look(ref pawn, "pawn");
+                Scribe_Values.Look(ref completed, "completed", false);
             }
         }
 

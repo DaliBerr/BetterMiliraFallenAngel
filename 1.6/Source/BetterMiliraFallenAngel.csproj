@@ -4,8 +4,10 @@
      <TargetFramework>net480</TargetFramework>
     <OutputPath>../Assemblies/net480</OutputPath>
     <AssemblyName>BetterMiliraFallenAngel</AssemblyName>
-    <RootNamespace>BetterMiliraFallenAngel</RootNamespace>
-    <ModTargetPath>C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\$(AssemblyName)</ModTargetPath>
+     <RootNamespace>BetterMiliraFallenAngel</RootNamespace>
+     <ModTargetPath>C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\$(AssemblyName)</ModTargetPath>
+     <RimWorldManagedPath>C:\Program Files (x86)\Steam\steamapps\common\RimWorld\RimWorldWin64_Data\Managed</RimWorldManagedPath>
+     <MiliraModPath>C:\Program Files (x86)\Steam\steamapps\workshop\content\294100\3256974620\1.6</MiliraModPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -61,19 +63,19 @@
 
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>../ExternalMods/Assembly-CSharp.dll</HintPath>
+      <HintPath>$(RimWorldManagedPath)\Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>../ExternalMods/UnityEngine.dll</HintPath>
+      <HintPath>$(RimWorldManagedPath)\UnityEngine.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>../ExternalMods/UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(RimWorldManagedPath)\UnityEngine.CoreModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Milira">
-      <HintPath>../ExternalMods/Milira.dll</HintPath>
+      <HintPath>$(MiliraModPath)\Assemblies\Milira.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

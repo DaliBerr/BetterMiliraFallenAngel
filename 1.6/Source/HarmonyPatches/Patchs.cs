@@ -1,29 +1,20 @@
-using Verse;
 using HarmonyLib;
 using Milira;
 using RimWorld;
-using System.Linq;
+using RimWorld.QuestGen;
+using Verse;
+
 namespace BetterFallenAngel
 {
     public static class Patches
     {
-        [HarmonyPatch(typeof(QuestNode_Root_FallenAngel), "GeneratePawn")]
-        public static class Postfix_GeneratePawn
+        [HarmonyPatch(typeof(QuestNode_Root_FallenAngel), nameof(QuestNode_Root_FallenAngel.GeneratePawn_NewTemp))]
+        public static class Patch_FallenAngel_GeneratePawnNewTemp
         {
-
             [HarmonyPostfix]
-            public static void GeneratePawn_Postfix(ref Pawn __result)
+            public static void Postfix(Pawn __result)
             {
-                if (__result != null)
-                {
-                    __result.health.AddHediff(FallenMiliraDefOf.Milira_FallenAngelMark);
-                    if (!__result.health.hediffSet.HasHediff(FallenMiliraDefOf.Milira_FallenAngelAura))
-                    {
-                        var h = HediffMaker.MakeHediff(FallenMiliraDefOf.Milira_FallenAngelAura, __result);
-                        __result.health.AddHediff(h);
-                    }
-                }
-                CoreUtilities.UnlockGoodWill(ExtendBool.False);
+                CoreUtilities.PrepareInitialFallenAngel(__result);
             }
         }
 
@@ -33,110 +24,109 @@ namespace BetterFallenAngel
             [HarmonyPostfix]
             public static void Postfix()
             {
-                // if()
-                if (WorldComponent_BFA.Instance != null)
-                {
-                    CoreUtilities.UnlockGoodWill(WorldComponent_BFA.Instance.isUnlocked);
-                    CoreUtilities.FixLegacyQuest(WorldComponent_BFA.Instance.Quest);
-                    CoreUtilities.TryAutoCloseLegacyAcceptQuest(WorldComponent_BFA.Instance.Quest);
-                }
+                if (WorldComponent_BFA.Instance == null) return;
+
+                CoreUtilities.UnlockGoodWill(WorldComponent_BFA.Instance.isUnlocked);
+                CoreUtilities.ReconcileAfterLoad();
             }
         }
 
         [HarmonyPatch(typeof(Quest), nameof(Quest.End))]
-        public static class Patch_Quest_End_ForcePermanentStay
+        public static class Patch_Quest_End
         {
-            /// <summary>
-            /// summary: 在 Quest.End 完成后（清理已发生），如果是“接受线留下”导致的成功结束，则把天使强制转回玩家阵营并清访客状态。
-            /// param: __instance 当前结束的任务实例
-            /// param: outcome 任务结局
-            /// return: 无
-            /// </summary>
             [HarmonyPostfix]
             public static void Postfix(Quest __instance, QuestEndOutcome outcome)
             {
-                // Log.Message("[BetterMiliraFallenAngel] Quest.End postfix triggered for quest " + __instance?.name + " (ID: " + __instance?.id + ")");
-                if (__instance == null)
+                WorldComponent_BFA component = WorldComponent_BFA.Instance;
+                if (__instance == null || component == null || component.Quest != __instance) return;
+
+                CoreUtilities.QuestPart_FinalizePermanentStay finalize = __instance.PartsListForReading
+                    .Find(part => part is CoreUtilities.QuestPart_FinalizePermanentStay)
+                    as CoreUtilities.QuestPart_FinalizePermanentStay;
+
+                if (outcome == QuestEndOutcome.Success && finalize?.completed == true)
                 {
-                    // Log.Warning("[BetterMiliraFallenAngel] Quest.End postfix found null quest instance.");
+                    CoreUtilities.SyncPermanentAngel(finalize.pawn ?? component.managedAngel);
                     return;
                 }
-                if (outcome != QuestEndOutcome.Success){
-                    // Log.Message("[BetterMiliraFallenAngel] Quest.End postfix exiting because outcome is not Success: " + outcome);
-                    return;
-                }
-                if (WorldComponent_BFA.Instance == null) return;
-                if (WorldComponent_BFA.Instance.Quest != __instance) return;
 
-                Pawn angel = TryFindMarkedAngelFromQuest(__instance) ?? TryFindMarkedAngelOnAnyPlayerMap();
-                if (angel == null){
-                    // Log.Warning("[BetterMiliraFallenAngel] Could not find Fallen Angel pawn to make permanent colonist.");
-                    return;
-                }
-                ForcePawnToBeColonist(angel);
-            }
-
-            /// <summary>
-            /// summary: 优先从任务的 JoinPlayer 部件里找带 FallenAngelMark 的 Pawn（最准确）。
-            /// param: quest 当前任务
-            /// return: 找到则返回 Pawn，否则返回 null
-            /// </summary>
-            private static Pawn TryFindMarkedAngelFromQuest(Quest quest)
-            {
-                try
+                if (outcome != QuestEndOutcome.Success)
                 {
-                    return quest.PartsListForReading
-                        .OfType<QuestPart_JoinPlayer>()
-                        .SelectMany(p => p.pawns ?? Enumerable.Empty<Pawn>())
-                        .FirstOrDefault(p => p?.health?.hediffSet?.HasHediff(FallenMiliraDefOf.Milira_FallenAngelMark) == true);
-                }
-                catch
-                {
-                    return null;
-                }
-            }
-
-            /// <summary>
-            /// summary: 兜底：从任意玩家地图上找带 FallenAngelMark 的 Pawn（适配 JoinPlayer 列表被清空的情况）。
-            /// param: 无
-            /// return: 找到则返回 Pawn，否则返回 null
-            /// </summary>
-            private static Pawn TryFindMarkedAngelOnAnyPlayerMap()
-            {
-                foreach (var map in Find.Maps)
-                {
-                    if (map == null) continue;
-                    if (!map.IsPlayerHome) continue;
-
-                    var pawns = map.mapPawns?.AllPawnsSpawned;
-                    if (pawns == null) continue;
-
-                    var found = pawns.FirstOrDefault(p =>
-                        p?.health?.hediffSet?.HasHediff(FallenMiliraDefOf.Milira_FallenAngelMark) == true);
-                    if(found == null)
-                    {
-                        // Log.Warning("[BetterMiliraFallenAngel] Could not find Fallen Angel on player map: " + map);
-                    }
-                    if (found != null) return found;
-                }
-                return null;
-            }
-
-            /// <summary>
-            /// summary: 强制 Pawn 成为玩家殖民者（设为玩家派系 + 清除访客/俘虏等 Guest 状态）。
-            /// param: pawn 目标 Pawn
-            /// return: 无
-            /// </summary>
-            private static void ForcePawnToBeColonist(Pawn pawn)
-            {
-                if (pawn == null || pawn.Dead) return;
-
-                if (pawn.Faction != Faction.OfPlayer)
-                {
-                    pawn.SetFaction(Faction.OfPlayer);
+                    CoreUtilities.MarkAngelLeft(component.managedAngel);
                 }
             }
         }
 
+        [HarmonyPatch(typeof(QuestNode_Root_WandererJoin), nameof(QuestNode_Root_WandererJoin.GeneratePawn_NewTemp))]
+        public static class Patch_FallenMiliraReturn_GeneratePawnNewTemp
+        {
+            [HarmonyPrefix]
+            public static bool Prefix(QuestNode_Root_WandererJoin __instance, ref Pawn __result)
+            {
+                QuestNode_Root_FallenMiliraJoin_WalkIn returnNode = __instance as QuestNode_Root_FallenMiliraJoin_WalkIn;
+                if (returnNode == null) return true;
+
+                __result = returnNode.GeneratePawn();
+                return false;
+            }
+        }
+
+        [HarmonyPatch(typeof(QuestNode_Root_WandererJoin), "TestRunInt")]
+        public static class Patch_FallenMiliraReturn_TestRun
+        {
+            [HarmonyPostfix]
+            public static void Postfix(QuestNode_Root_WandererJoin __instance, ref bool __result)
+            {
+                if (!(__instance is QuestNode_Root_FallenMiliraJoin_WalkIn)) return;
+
+                MiliraGameComponent_OverallControl control = CoreUtilities.MiliraControl;
+                Pawn pawn = control?.pawn;
+                Faction miliraFaction = Find.FactionManager.FirstFactionOfDef(MiliraDefOf.Milira_Faction);
+                __result = __result
+                    && miliraFaction != null
+                    && !miliraFaction.HostileTo(Faction.OfPlayer)
+                    && pawn != null
+                    && !pawn.Dead
+                    && pawn.Faction?.def == MiliraDefOf.Milira_Faction;
+            }
+        }
+
+        [HarmonyPatch(typeof(IncidentWorker_GiveQuestExceptMiliraScenario), "CanFireNowSub")]
+        public static class Patch_MiliraChurchIncident_CanFire
+        {
+            [HarmonyPostfix]
+            public static void Postfix(IncidentWorker_GiveQuestExceptMiliraScenario __instance, ref bool __result)
+            {
+                FallenAngelStoryState state = WorldComponent_BFA.Instance?.storyState ?? FallenAngelStoryState.None;
+                if (state != FallenAngelStoryState.Active && state != FallenAngelStoryState.Permanent) return;
+
+                if (__instance?.def?.defName == "Milira_FallenAngel_ToChurch")
+                {
+                    __result = false;
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(Pawn), nameof(Pawn.Kill))]
+        public static class Patch_ManagedAngel_Kill
+        {
+            [HarmonyPostfix]
+            public static void Postfix(Pawn __instance)
+            {
+                WorldComponent_BFA component = WorldComponent_BFA.Instance;
+                if (component?.managedAngel != __instance) return;
+
+                Quest quest = component.Quest;
+                if (quest != null
+                    && (quest.State == QuestState.NotYetAccepted || quest.State == QuestState.Ongoing))
+                {
+                    quest.End(QuestEndOutcome.Fail, false, false);
+                }
+                else
+                {
+                    CoreUtilities.MarkAngelLeft(__instance);
+                }
+            }
+        }
     }
 }

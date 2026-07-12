@@ -1,6 +1,5 @@
 using Verse;
 using HarmonyLib;
-using RimWorld.Utility;
 using System;
 
 namespace BetterFallenAngel.Startup
@@ -16,9 +15,26 @@ namespace BetterFallenAngel.Startup
             }
 
             var harmony = new Harmony("Aquin.BetterMiliraFallenAngel");
-            harmony.PatchAll();
+            PatchSafely(harmony, typeof(Patches.Patch_FallenAngel_GeneratePawnNewTemp));
+            PatchSafely(harmony, typeof(Patches.Patch_Game_LoadGame));
+            PatchSafely(harmony, typeof(Patches.Patch_Quest_End));
+            PatchSafely(harmony, typeof(Patches.Patch_FallenMiliraReturn_GeneratePawnNewTemp));
+            PatchSafely(harmony, typeof(Patches.Patch_FallenMiliraReturn_TestRun));
+            PatchSafely(harmony, typeof(Patches.Patch_MiliraChurchIncident_CanFire));
+            PatchSafely(harmony, typeof(Patches.Patch_ManagedAngel_Kill));
         }
 
+        private static void PatchSafely(Harmony harmony, Type patchType)
+        {
+            try
+            {
+                harmony.CreateClassProcessor(patchType).Patch();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"[BetterMiliraFallenAngel] Failed to apply patch {patchType.FullName}: {ex}");
+            }
+        }
     }
     
 
