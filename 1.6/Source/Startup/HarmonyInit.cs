@@ -17,6 +17,9 @@ namespace BetterFallenAngel.Startup
             var harmony = new Harmony("Aquin.BetterMiliraFallenAngel");
             PatchSafely(harmony, typeof(Patches.Patch_FallenAngel_GeneratePawnNewTemp));
             PatchSafely(harmony, typeof(Patches.Patch_Game_LoadGame));
+            PatchSafely(harmony, typeof(Patches.Patch_MiliraPermanentEnemyStatus));
+            PatchSafely(harmony, typeof(Patches.Patch_MiliraPermanentEnemies));
+            PatchSafely(harmony, typeof(Patches.Patch_MiliraSlightThaw));
             PatchSafely(harmony, typeof(Patches.Patch_Quest_End));
             PatchSafely(harmony, typeof(Patches.Patch_FallenMiliraReturn_GeneratePawnNewTemp));
             PatchSafely(harmony, typeof(Patches.Patch_FallenMiliraReturn_TestRun));

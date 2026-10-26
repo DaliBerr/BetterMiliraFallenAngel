@@ -37,6 +37,15 @@ namespace BetterFallenAngel
             Scribe_Values.Look(ref isUnlocked, "BFA_isUnlocked", ExtendBool.Unset, true);
             Scribe_References.Look(ref managedAngel, "BFA_managedAngel");
             Scribe_Values.Look(ref storyState, "BFA_storyState", FallenAngelStoryState.None, true);
+
+            if (Scribe.mode == LoadSaveMode.LoadingVars)
+                MiliraDiplomacy.Restore(this);
+        }
+
+        public override void FinalizeInit(bool fromLoad)
+        {
+            base.FinalizeInit(fromLoad);
+            if (fromLoad) MiliraDiplomacy.Restore(this);
         }
         public Quest Quest
         {

@@ -1,9 +1,37 @@
-1.5/Assembiles/*
-1.6/Assembiles/*
+**/bin/
+**/obj/
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Local dependencies and decompiled reference code.
+**/ExternalMods/
+Milira Source/
+
+# Build output, deployment backups and temporary files.
+Build/bin/
+Build/legacy/
+Build/backups/
+work/
+outputs/
+*.log
+*.tmp
+*.bak
+*.zip
+*.7z
+*.rar
 *.dll
-*.sln
 *.pdb
-1.5/Source/obj/*
-1.6/Source/obj/*
-!BetterMiliraFallenAngel.dll
-Milira Source
+*.sln
+
+# Keep the two DLLs required to install and run this mod.
+!1.6/Assemblies/BetterMiliraFallenAngel.dll
+!1.7/Assemblies/BetterMiliraFallenAngel.dll
+
+# Local design notes and unused experimental definitions.
+/BetterMiliraFallenAngel.pptx
+/RecipeDef.xml
+/1.6/Source/Core/cache.txt

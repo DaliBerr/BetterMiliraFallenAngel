@@ -2,6 +2,7 @@ using HarmonyLib;
 using Milira;
 using RimWorld;
 using RimWorld.QuestGen;
+using System.Reflection;
 using Verse;
 
 namespace BetterFallenAngel
@@ -26,8 +27,49 @@ namespace BetterFallenAngel
             {
                 if (WorldComponent_BFA.Instance == null) return;
 
-                CoreUtilities.UnlockGoodWill(WorldComponent_BFA.Instance.isUnlocked);
+                MiliraDiplomacy.Restore(WorldComponent_BFA.Instance);
                 CoreUtilities.ReconcileAfterLoad();
+            }
+        }
+
+        [HarmonyPatch(typeof(MiliraGameComponent_OverallControl), nameof(MiliraGameComponent_OverallControl.CheckMiliraPermanentEnemyStatus))]
+        public static class Patch_MiliraPermanentEnemyStatus
+        {
+            [HarmonyPostfix]
+            public static void Postfix()
+            {
+                // Milira also rewrites its whitelist in LoadedGame(). Apply
+                // BFA's persisted permission after that independent callback.
+                MiliraDiplomacy.Restore(WorldComponent_BFA.Instance);
+            }
+        }
+
+        [HarmonyPatch(typeof(GoodwillSituationWorker_PermanentEnemy), nameof(GoodwillSituationWorker_PermanentEnemy.ArePermanentEnemies))]
+        public static class Patch_MiliraPermanentEnemies
+        {
+            [HarmonyPostfix]
+            [HarmonyPriority(Priority.Last)]
+            [HarmonyAfter("Ancot.MiliraRaceHarmonyPatch")]
+            public static void Postfix(Faction a, Faction b, ref bool __result)
+            {
+                bool miliraAndPlayer = a?.def == MiliraDefOf.Milira_Faction && b?.IsPlayer == true
+                    || b?.def == MiliraDefOf.Milira_Faction && a?.IsPlayer == true;
+                bool unlocked;
+                if (miliraAndPlayer && MiliraDiplomacy.TryGetUnlocked(WorldComponent_BFA.Instance, out unlocked))
+                    __result = !unlocked;
+            }
+        }
+
+        [HarmonyPatch(typeof(GoodwillSituationWorker_SlightThaw), nameof(GoodwillSituationWorker_SlightThaw.Active))]
+        public static class Patch_MiliraSlightThaw
+        {
+            [HarmonyPostfix]
+            public static void Postfix(Faction other, ref bool __result)
+            {
+                bool unlocked;
+                if (other?.def == MiliraDefOf.Milira_Faction
+                    && MiliraDiplomacy.TryGetUnlocked(WorldComponent_BFA.Instance, out unlocked) && unlocked)
+                    __result = false;
             }
         }
 
@@ -57,9 +99,16 @@ namespace BetterFallenAngel
             }
         }
 
-        [HarmonyPatch(typeof(QuestNode_Root_WandererJoin), nameof(QuestNode_Root_WandererJoin.GeneratePawn_NewTemp))]
+        [HarmonyPatch]
         public static class Patch_FallenMiliraReturn_GeneratePawnNewTemp
         {
+            [HarmonyTargetMethod]
+            public static MethodBase TargetMethod()
+            {
+                return AccessTools.Method(typeof(QuestNode_Root_WandererJoin), "GeneratePawn_NewTemp")
+                    ?? AccessTools.Method(typeof(QuestNode_Root_WandererJoin), "GeneratePawn");
+            }
+
             [HarmonyPrefix]
             public static bool Prefix(QuestNode_Root_WandererJoin __instance, ref Pawn __result)
             {

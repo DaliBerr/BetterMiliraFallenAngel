@@ -1,0 +1,30 @@
+<Project>
+  <PropertyGroup>
+    <ModRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))</ModRoot>
+    <AssemblyName>BetterMiliraFallenAngel</AssemblyName>
+    <RootNamespace>BetterFallenAngel</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>$(ModRoot)/Build/bin/$(ModVersion)/$(Configuration)/</OutputPath>
+    <RimWorldPath Condition="'$(RimWorldPath)' == ''">C:/Program Files (x86)/Steam/steamapps/common/RimWorld</RimWorldPath>
+    <RimWorldManagedPath Condition="'$(RimWorldManagedPath)' == '' and '$(ModVersion)' == '1.6'">$(ModRoot)/1.6/ExternalMods</RimWorldManagedPath>
+    <RimWorldManagedPath Condition="'$(RimWorldManagedPath)' == '' and '$(ModVersion)' == '1.7'">$(RimWorldPath)</RimWorldManagedPath>
+    <MiliraAssemblyPath Condition="'$(MiliraAssemblyPath)' == ''">$(ModRoot)/../Rimworld_Assmb/Milira/3256974620/1.6/Assemblies/Milira.dll</MiliraAssemblyPath>
+    <HarmonyAssemblyPath Condition="'$(HarmonyAssemblyPath)' == '' and '$(ModVersion)' == '1.6'">$(ModRoot)/1.6/ExternalMods/0Harmony.dll</HarmonyAssemblyPath>
+    <HarmonyAssemblyPath Condition="'$(HarmonyAssemblyPath)' == '' and '$(ModVersion)' == '1.7'">$(RimWorldPath)/../../workshop/content/294100/2009463077/1.7/Assemblies/0Harmony.dll</HarmonyAssemblyPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(RimWorldManagedPath)/Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Milira">
+      <HintPath>$(MiliraAssemblyPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(HarmonyAssemblyPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

@@ -1,88 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!-- <TargetFramework>net472</TargetFramework> -->
-     <TargetFramework>net480</TargetFramework>
-    <OutputPath>../Assemblies/net480</OutputPath>
-    <AssemblyName>BetterMiliraFallenAngel</AssemblyName>
-     <RootNamespace>BetterMiliraFallenAngel</RootNamespace>
-     <ModTargetPath>C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\$(AssemblyName)</ModTargetPath>
-     <RimWorldManagedPath>C:\Program Files (x86)\Steam\steamapps\common\RimWorld\RimWorldWin64_Data\Managed</RimWorldManagedPath>
-     <MiliraModPath>C:\Program Files (x86)\Steam\steamapps\workshop\content\294100\3256974620\1.6</MiliraModPath>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <About Include="..\..\About\**\*" />
-    <Defs Include="..\Defs\**\*" />
-    <Langs Include="..\Languages\**\*" />
-    <Textures Include="..\Textures\**\*" />
-    <Patches Include="..\Patches\**\*" />
-  </ItemGroup>
-
-  <PropertyGroup>
     <ModVersion>1.6</ModVersion>
+    <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
-
-  <Target Name = "AfterBuildCopy" AfterTargets="Build">
-
-    <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" 
-          DestinationFolder="$(ModTargetPath)\$(ModVersion)\Assemblies"
-          OverwriteReadOnlyFiles="true" />
-    <Message  Importance="high" 
-              Text="Copying $(OutputPath)$(AssemblyName).dll to $(ModTargetPath)" />
-  
-    <Copy SourceFiles="@(Defs)"
-          DestinationFiles="@(Defs->'$(ModTargetPath)\$(ModVersion)\Defs\%(RecursiveDir)%(Filename)%(Extension)')" 
-          OverwriteReadOnlyFiles="true" /> 
-    <Message  Importance="high" 
-              Text="Copying Defs to $(ModTargetPath)\$(ModVersion)" />
-    <Copy SourceFiles="@(Patches)"
-          DestinationFiles="@(Patches->'$(ModTargetPath)\$(ModVersion)\Patches\%(RecursiveDir)%(Filename)%(Extension)')" 
-          OverwriteReadOnlyFiles="true" />
-    <Message  Importance="high"
-              Text="Copying Patches to $(ModTargetPath)\$(ModVersion)" />
-              
-    <Copy SourceFiles="@(Langs)"
-          DestinationFiles="@(Langs->'$(ModTargetPath)\$(ModVersion)\Languages\%(RecursiveDir)%(Filename)%(Extension)')" 
-          OverwriteReadOnlyFiles="true" /> 
-    <Message  Importance="high" 
-              Text="Copying Langs to $(ModTargetPath)\$(ModVersion)" />
-
-    <Copy SourceFiles="@(About)"
-          DestinationFiles="@(About->'$(ModTargetPath)\%(RecursiveDir)\About\%(Filename)%(Extension)')" 
-          OverwriteReadOnlyFiles="true" />
-    <Message  Importance="high" 
-              Text="Copying About to $(ModTargetPath)" />
-
-    <Copy SourceFiles="@(Textures)"
-          DestinationFiles="@(Textures->'$(ModTargetPath)\$(ModVersion)\Textures\%(RecursiveDir)%(Filename)%(Extension)')" 
-          OverwriteReadOnlyFiles="true" />
-    <Message  Importance="high" 
-              Text="Copying Textures to $(ModTargetPath)\$(ModVersion)" />
-
-  </Target>
-
+  <Import Project="../../Build/Mod.props" />
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>$(RimWorldManagedPath)\Assembly-CSharp.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>$(RimWorldManagedPath)\UnityEngine.dll</HintPath>
+      <HintPath>$(RimWorldManagedPath)/UnityEngine.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(RimWorldManagedPath)\UnityEngine.CoreModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Milira">
-      <HintPath>$(MiliraModPath)\Assemblies\Milira.dll</HintPath>
+      <HintPath>$(RimWorldManagedPath)/UnityEngine.CoreModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Lib.Harmony" Version="2.2.2"> 
-      <ExcludeAssets>runtime</ExcludeAssets>
-    </PackageReference>
-  </ItemGroup>
+  <Import Project="../../Build/Mod.targets" />
 </Project>

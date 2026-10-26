@@ -89,15 +89,7 @@ namespace BetterFallenAngel
         {
             if (pawn == null || pawn.Dead) return;
 
-            if (pawn.IsPrisonerOfColony || pawn.IsSlaveOfColony)
-            {
-                RecruitUtility.Recruit(pawn, Faction.OfPlayer);
-            }
-            else if (pawn.Faction != Faction.OfPlayer)
-            {
-                pawn.SetFaction(Faction.OfPlayer);
-            }
-            pawn.guest?.SetGuestStatus(null);
+            PawnMembership.EnsurePlayerMembership(pawn);
 
             WorldComponent_BFA.Instance?.MarkPermanent(pawn);
             MiliraGameComponent_OverallControl control = MiliraControl;
@@ -121,125 +113,6 @@ namespace BetterFallenAngel
             }
         }
 
-        static List<FactionDef> alwaysFriendlyFactionDef = new List<FactionDef>
-        {
-            DefDatabase<FactionDef>.GetNamedSilentFail("Kiiro_Faction"),
-            DefDatabase<FactionDef>.GetNamedSilentFail("Milira_PlayerFaction"),
-            DefDatabase<FactionDef>.GetNamedSilentFail("Kiiro_PlayerFaction"),
-        };
-
-        /// <summary>
-        /// summary: 判断当前玩家派系是否为 Milira 帝国玩家派系（Milira_Imperium_PlayerFaction）。
-        /// param: 无
-        /// return: 若为帝国玩家派系则返回 true，否则返回 false
-        /// </summary>
-        private static bool IsImperiumPlayerFaction()
-        {
-            var imperiumDef = DefDatabase<FactionDef>.GetNamedSilentFail("Milira_Imperium_PlayerFaction");
-            return imperiumDef != null && Faction.OfPlayer?.def == imperiumDef;
-        }
-
-        private static void UnlockGoodWill(bool isUnlocked)
-        {
-            if (IsImperiumPlayerFaction())
-            {
-                Log.Message("[BetterFallenAngel] Skip UnlockGoodWill(bool): Imperium player faction detected.");
-                return;
-            }
-
-            var def = DefDatabase<FactionDef>.GetNamedSilentFail("Milira_Faction");
-            if (def == null)
-            {
-                Log.Warning("[Milira] FactionDef 'Milira_Faction' not found.");
-                return;
-            }
-            
-
-            var miliraFactions = Find.FactionManager.AllFactionsListForReading
-                .Where(f => f.def == def)
-                .ToList();
-
-            // 参与关系调整的阵营集合（含隐藏）
-            var allFactions = Find.FactionManager.AllFactionsListForReading;
-            // Log.Warning("[BetterFallenAngel] UnlockGoodWill: isUnlocked=" + isUnlocked);
-            // WorldComponent_BFA.Instance.isUnlocked = isUnlocked;
-
-            if(def.permanentEnemyToEveryoneExcept == null)
-                def.permanentEnemyToEveryoneExcept = new List<FactionDef>();
-                
-            def.permanentEnemyToEveryoneExcept.AddRange(alwaysFriendlyFactionDef);
-
-            if (alwaysFriendlyFactionDef.Any(f => f != null && f == Find.FactionManager.OfPlayer.def))
-            {
-                WorldComponent_BFA.Instance.isUnlocked = ExtendBool.True;
-                def.permanentEnemyToEveryoneExcept?.Add(Faction.OfPlayer.def);
-                // foreach (var f in miliraFactions)
-                // {
-                //     f.TryAffectGoodwillWith(Faction.OfPlayer, 100, false, false, null, null);
-                // }
-                return;
-            }
-
-
-            if (isUnlocked)
-            {
-                WorldComponent_BFA.Instance.isUnlocked = ExtendBool.True;
-                def.permanentEnemy = false;
-
-                if (def.permanentEnemyToEveryoneExcept == null)
-                    def.permanentEnemyToEveryoneExcept = new List<FactionDef> { Faction.OfPlayer.def };
-                else
-                {
-                    def.permanentEnemyToEveryoneExcept.Add(Faction.OfPlayer.def); // 仅移除玩家阵营，保留其他白名单
-                }
-
-            foreach (var f in miliraFactions)
-            {
-                // 获取当前与玩家的好感度
-                int currentGoodwill = f.GoodwillWith(Faction.OfPlayer);
-                
-                // 只有当好感度是负数（敌对）时，才重置为 0（中立）
-                // 这样做是为了防止玩家已经是盟友(+75)时，读档被重置回 0
-                if (currentGoodwill < 0)
-                {
-                    // 补正差值，让好感度正好回到 0
-                    // canSendMessage: false 防止刷屏提示
-                    f.TryAffectGoodwillWith(Faction.OfPlayer, -currentGoodwill, canSendMessage: false);
-                }
-            }
-            }
-            else
-            {
-                WorldComponent_BFA.Instance.isUnlocked = ExtendBool.False;
-                def.permanentEnemy = true;
-                if (def.permanentEnemyToEveryoneExcept == null)
-                    def.permanentEnemyToEveryoneExcept = new List<FactionDef>();
-
-                if (def.permanentEnemyToEveryoneExcept.Contains(Faction.OfPlayer.def))
-                    def.permanentEnemyToEveryoneExcept.Remove(Faction.OfPlayer.def); // 仅追加，不覆盖原有白名单
-
-
-
-
-                foreach (var f in miliraFactions)
-                {
-                    foreach (var other in allFactions)
-                    {
-                        if (other == null || other == f) continue;
-
-                        if (other == Faction.OfPlayer)
-                        {
-                            // f.SetRelationDirect(other, FactionRelationKind.Hostile, false, null, null);
-                            // f.SetRelation(FactionRelation.)
-                            f.TryAffectGoodwillWith(other, -100, false, false, null, null);
-                        }
-
-                    }
-                }
-            }
-
-            // Messages.Message("Milira goodwill has been " + (isUnlocked ? "unlocked" : "locked") + ".", MessageTypeDefOf.PositiveEvent, false);
-        }
         /// <summary>
         /// summary: 兼容旧存档：把“LeaveAfter 直接结束任务”的旧逻辑改写为“LeaveAfter -> StayEnd -> 成功结束”，并注入缺失的部件。
         /// param: quest 需要修复的任务实例
@@ -454,35 +327,7 @@ namespace BetterFallenAngel
         }
         public static void UnlockGoodWill(ExtendBool flag)
         {
-
-            if (IsImperiumPlayerFaction())
-            {
-                // 不想刷日志的话可以删掉这一行
-                Log.Message("[BetterFallenAngel] Skip UnlockGoodWill(bool): Imperium player faction detected.");
-                return;
-            }
-            if (flag == ExtendBool.True)
-            {
-                UnlockGoodWill(true);
-                // WorldComponent_BFA.Instance.isUnlocked = ExtendBool.True;
-            }
-            else if (flag == ExtendBool.False)
-            {
-                UnlockGoodWill(false);
-                // WorldComponent_BFA.Instance.isUnlocked = ExtendBool.False;
-            }
-            else if (flag == ExtendBool.Unset)
-            {
-                if (WorldComponent_BFA.Instance.QuestActive || WorldComponent_BFA.Instance.suppressFADialog)
-                {
-                    CoreUtilities.UnlockGoodWill(true);
-                    // Log.Message("[BetterFallenAngel] Goodwill unlocked on load due to active quest or suppressed dialog.");
-                }
-                else
-                {
-                    UnlockGoodWill(false);
-                }
-            }
+            MiliraDiplomacy.SetUnlocked(WorldComponent_BFA.Instance, flag);
         }
         public static bool TryStartRejectQuest(Pawn fallenAngel)
         {
