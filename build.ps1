@@ -35,6 +35,9 @@ if ($Deploy) {
             Copy-Item -LiteralPath (Join-Path $PSScriptRoot $folder) -Destination $destination -Recurse
         }
         Copy-Item -LiteralPath "$PSScriptRoot\LoadFolders.xml" -Destination $destination
+        if ($backup -and (Test-Path -LiteralPath "$backup\About\PublishedFileId.txt")) {
+            Copy-Item -LiteralPath "$backup\About\PublishedFileId.txt" -Destination "$destination\About\PublishedFileId.txt" -Force
+        }
         foreach ($modVersion in $versions) {
             $assemblyDirectory = Join-Path $destination "$modVersion\Assemblies"
             New-Item -ItemType Directory -Path $assemblyDirectory -Force | Out-Null

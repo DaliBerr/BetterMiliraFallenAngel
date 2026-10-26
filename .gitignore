@@ -35,3 +35,6 @@ outputs/
 /BetterMiliraFallenAngel.pptx
 /RecipeDef.xml
 /1.6/Source/Core/cache.txt
+
+# Preserve the local Steam Workshop association without publishing it to Git.
+/About/PublishedFileId.txt

@@ -14,6 +14,7 @@ Git 仓库保留源码、测试、构建脚本、Mod 内容和两个可安装的
 ./build.ps1
 dotnet run --project Tests/Regression/Regression.csproj -c Release
 dotnet run --project Tests/Compatibility/Compatibility.csproj -c Release
+./Tests/Deployment/Verify.ps1
 ```
 
 单独编译：`./build.ps1 -Version 1.6` 或 `./build.ps1 -Version 1.7`。
@@ -34,6 +35,8 @@ dotnet run --project Tests/Compatibility/Compatibility.csproj -c Release
 ```
 
 部署前将整个旧 Mod 目录移到 `Build/backups/installed-时间戳`；部署失败会恢复。旧的版本内 Defs、翻译和多余 DLL 不会残留在新安装中。
+
+部署时保留原安装 `About/PublishedFileId.txt` 中的 Steam 工坊编号，继续更新原来的工坊条目。该文件只在本地保留，不提交到 Git。
 
 ## 修复行为
 
